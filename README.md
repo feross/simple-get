@@ -1,14 +1,17 @@
 # simple-get [![travis](https://img.shields.io/travis/feross/simple-get.svg)](https://travis-ci.org/feross/simple-get) [![npm](https://img.shields.io/npm/v/simple-get.svg)](https://npmjs.org/package/simple-get) [![downloads](https://img.shields.io/npm/dm/simple-get.svg)](https://npmjs.org/package/simple-get)
 
-### Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.
+### Simplest way to make http get requests
 
 ## features
 
-- follow redirects
-- automatically handle gzip/deflate responses
-- use streams
+This module is designed to be the lightest possible wrapper on top of node.js `http`, but supporting:
+
+- follows redirects
+- automatically handles gzip/deflate responses
 - supports HTTPS
-- supports `url` key so there's no need to use `url.parse` on the url when specifying options
+- supports convenience `url` key so there's no need to use `url.parse` on the url when specifying options
+
+All this in < 100 lines of code.
 
 ## install
 
