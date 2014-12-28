@@ -46,7 +46,6 @@ get({
   headers: {
     'user-agent': 'my cool app'
   }
-  
 }, function (err, res) {
   if (err) throw err
   
@@ -60,7 +59,7 @@ get({
     // `data` is the decoded response, after it's been gunzipped or inflated
     // (if applicable)
     console.log('got the response: ' + data)
-  })
+  }))
   
 })
 ```
