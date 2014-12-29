@@ -70,7 +70,8 @@ function urlToOpts (u) {
   return {
     hostname: loc.hostname,
     port: loc.port,
-    path: loc.path
+    path: loc.path,
+    protocol: loc.protocol
   }
 }
 
