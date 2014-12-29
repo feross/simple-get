@@ -2,6 +2,7 @@ var concat = require('concat-stream')
 var http = require('http')
 var portfinder = require('portfinder')
 var get = require('../')
+var selfSignedHttps = require('self-signed-https')
 var str = require('string-to-stream')
 var test = require('tape')
 var zlib = require('zlib')
@@ -152,6 +153,33 @@ test('deflate response', function (t) {
       get('http://localhost:' + port, function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200) // statusCode still works on inflate stream
+        res.pipe(concat(function (data) {
+          t.equal(data.toString(), 'response')
+          server.close()
+        }))
+      })
+    })
+  })
+})
+
+test('https', function (t) {
+  t.plan(4)
+
+  // Allow self-signed certs
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
+  var server = selfSignedHttps(function (req, res) {
+    t.equal(req.url, '/path')
+    res.statusCode = 200
+    res.end('response')
+  })
+
+  portfinder.getPort(function (err, port) {
+    if (err) throw err
+    server.listen(port, function () {
+      get('https://localhost:' + port + '/path', function (err, res) {
+        t.error(err)
+        t.equal(res.statusCode, 200)
         res.pipe(concat(function (data) {
           t.equal(data.toString(), 'response')
           server.close()
