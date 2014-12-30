@@ -6,7 +6,7 @@ var zlib = require('zlib')
 
 module.exports = function simpleGet (opts, cb) {
   if (typeof opts === 'string')
-    opts = urlToOpts(opts)
+    opts = parseOptsUrl({ url: opts })
   if (typeof cb !== 'function')
     cb = function () {}
   cb = once(cb)
@@ -17,17 +17,7 @@ module.exports = function simpleGet (opts, cb) {
   if (!opts.maxRedirects)
     opts.maxRedirects = 10
 
-  // Support convenience `url` option
-  if (opts.url) {
-    var loc = urlToOpts(opts.url)
-    opts.hostname = loc.hostname
-    opts.port = loc.port
-    opts.protocol = loc.protocol
-    opts.path = loc.path
-  }
-
-  // Support http: and https: urls
-  var protocol = opts.protocol === 'https:' ? https : http
+  if (opts.url) parseOptsUrl(opts)
 
   // Accept gzip/deflate
   if (!opts.headers) opts.headers = {}
@@ -37,16 +27,14 @@ module.exports = function simpleGet (opts, cb) {
   if (!customAcceptEncoding)
     opts.headers['accept-encoding'] = 'gzip, deflate'
 
+  // Support http: and https: urls
+  var protocol = opts.protocol === 'https:' ? https : http
+
   var req = protocol.get(opts, function (res) {
     // Follow 3xx redirects
     if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
-      var loc = urlToOpts(res.headers.location)
-
-      // Support relative redirects
-      if (loc.hostname) opts.hostname = loc.hostname
-      if (loc.port) opts.port = loc.port
-      if (loc.protocol) opts.protocol = loc.protocol
-      opts.path = loc.path
+      opts.url = res.headers.location
+      parseOptsUrl(opts)
 
       res.resume() // Discard response
 
@@ -78,12 +66,12 @@ module.exports = function simpleGet (opts, cb) {
   req.on('error', cb)
 }
 
-function urlToOpts (u) {
-  var loc = url.parse(u)
-  return {
-    hostname: loc.hostname,
-    port: loc.port,
-    protocol: loc.protocol,
-    path: loc.path
-  }
+function parseOptsUrl (opts) {
+  var loc = url.parse(opts.url)
+  delete opts.url
+  if (loc.hostname) opts.hostname = loc.hostname
+  if (loc.port) opts.port = loc.port
+  if (loc.protocol) opts.protocol = loc.protocol
+  opts.path = loc.path
+  return opts
 }
