@@ -44,6 +44,7 @@ module.exports = function simpleGet (opts, cb) {
       // Support relative redirects
       if (loc.hostname) opts.hostname = loc.hostname
       if (loc.port) opts.port = loc.port
+      if (loc.protocol) opts.protocol = loc.protocol
       opts.path = loc.path
 
       res.resume() // Discard response
