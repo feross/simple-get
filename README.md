@@ -39,8 +39,7 @@ var concat = require('concat-stream')
 
 get({
   url: 'http://example.com',
-  maxRedirects: 3, // default value is 10 
-  
+
   // simple-get accepts all options that node.js `http` accepts
   // See: http://nodejs.org/api/http.html#http_http_request_options_callback
   headers: {
@@ -48,19 +47,19 @@ get({
   }
 }, function (err, res) {
   if (err) throw err
-  
+
   // All properties/methods from http.IncomingResponse are available,
   // even if a gunzip/inflate transform stream was returned.
   // See: http://nodejs.org/api/http.html#http_http_incomingmessage
   res.setTimeout(10000)
   console.log(res.headers)
-  
+
   res.pipe(concat(function (data) {
     // `data` is the decoded response, after it's been gunzipped or inflated
     // (if applicable)
     console.log('got the response: ' + data)
   }))
-  
+
 })
 ```
 
