@@ -22,6 +22,7 @@ module.exports = function simpleGet (opts, cb) {
     var loc = urlToOpts(opts.url)
     opts.hostname = loc.hostname
     opts.port = loc.port
+    opts.protocol = loc.protocol
     opts.path = loc.path
   }
 
@@ -82,7 +83,7 @@ function urlToOpts (u) {
   return {
     hostname: loc.hostname,
     port: loc.port,
-    path: loc.path,
-    protocol: loc.protocol
+    protocol: loc.protocol,
+    path: loc.path
   }
 }
