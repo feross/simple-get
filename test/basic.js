@@ -7,6 +7,9 @@ var str = require('string-to-stream')
 var test = require('tape')
 var zlib = require('zlib')
 
+// Allow self-signed certs
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 test('simple get', function (t) {
   t.plan(4)
 
@@ -165,9 +168,6 @@ test('deflate response', function (t) {
 test('https', function (t) {
   t.plan(4)
 
-  // Allow self-signed certs
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
   var server = selfSignedHttps(function (req, res) {
     t.equal(req.url, '/path')
     res.statusCode = 200
@@ -184,6 +184,94 @@ test('https', function (t) {
           t.equal(data.toString(), 'response')
           server.close()
         }))
+      })
+    })
+  })
+})
+
+test('redirect https to http', function (t) {
+  t.plan(5)
+
+  var httpPort = null
+  var httpsPort = null
+
+  var httpsServer = selfSignedHttps(function (req, res) {
+    t.equal(req.url, '/path1')
+    res.statusCode = 301
+    res.setHeader('Location', 'http://localhost:' + httpPort + '/path2')
+    res.end()
+  })
+
+  var httpServer = http.createServer(function (req, res) {
+    t.equal(req.url, '/path2')
+    res.statusCode = 200
+    res.end('response')
+  })
+
+  portfinder.getPort(function (err, _httpsPort) {
+    if (err) throw err
+    httpsPort = _httpsPort
+
+    httpsServer.listen(httpsPort, function () {
+      portfinder.getPort(function (err, _httpPort) {
+        if (err) throw err
+        httpPort = _httpPort
+
+        httpServer.listen(httpPort, function () {
+          get('https://localhost:' + httpsPort + '/path1', function (err, res) {
+            t.error(err)
+            t.equal(res.statusCode, 200)
+            res.pipe(concat(function (data) {
+              t.equal(data.toString(), 'response')
+              httpsServer.close()
+              httpServer.close()
+            }))
+          })
+        })
+      })
+    })
+  })
+})
+
+test('redirect http to https', function (t) {
+  t.plan(5)
+
+  var httpsPort = null
+  var httpPort = null
+
+  var httpServer = http.createServer(function (req, res) {
+    t.equal(req.url, '/path1')
+    res.statusCode = 301
+    res.setHeader('Location', 'https://localhost:' + httpsPort + '/path2')
+    res.end()
+  })
+
+  var httpsServer = selfSignedHttps(function (req, res) {
+    t.equal(req.url, '/path2')
+    res.statusCode = 200
+    res.end('response')
+  })
+
+  portfinder.getPort(function (err, _httpPort) {
+    if (err) throw err
+    httpPort = _httpPort
+
+    httpServer.listen(httpPort, function () {
+      portfinder.getPort(function (err, _httpsPort) {
+        if (err) throw err
+        httpsPort = _httpsPort
+
+        httpsServer.listen(httpsPort, function () {
+          get('http://localhost:' + httpPort + '/path1', function (err, res) {
+            t.error(err)
+            t.equal(res.statusCode, 200)
+            res.pipe(concat(function (data) {
+              t.equal(data.toString(), 'response')
+              httpsServer.close()
+              httpServer.close()
+            }))
+          })
+        })
       })
     })
   })
