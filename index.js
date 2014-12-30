@@ -53,13 +53,24 @@ module.exports = function simpleGet (opts, cb) {
     }
 
     // Handle gzip/deflate
-    var encoding = res.headers['content-encoding']
-    if (encoding === 'gzip')
-      cb(null, pipeAndWrap(res, zlib.Gunzip()))
-    else if (encoding === 'deflate')
-      cb(null, pipeAndWrap(res, zlib.createInflate()))
-    else
+    if (['gzip', 'deflate'].indexOf(res.headers['content-encoding']) !== -1) {
+      // Pipe the response through an unzip stream (gunzip, inflate) and wrap it so it
+      // looks like an `http.IncomingMessage`.
+      var stream = zlib.createUnzip()
+      res.pipe(stream)
+      res.on('close', function () { stream.emit('close') })
+      stream.httpVersion = res.httpVersion
+      stream.headers = res.headers
+      stream.trailers = res.trailers
+      stream.setTimeout = res.setTimeout.bind(res)
+      stream.method = res.method
+      stream.url = res.url
+      stream.statusCode = res.statusCode
+      stream.socket = res.socket
+      cb(null, stream)
+    } else {
       cb(null, res)
+    }
   })
 
   req.on('error', cb)
@@ -73,21 +84,4 @@ function urlToOpts (u) {
     path: loc.path,
     protocol: loc.protocol
   }
-}
-
-/**
- * Pipe the response through a transform stream (gunzip, inflate) and wrap it so it
- * looks like an `http.IncomingMessage`
- */
-function pipeAndWrap (res, stream) {
-  res.on('close', function () { stream.emit('close') })
-  stream.httpVersion = res.httpVersion
-  stream.headers = res.headers
-  stream.trailers = res.trailers
-  stream.setTimeout = res.setTimeout.bind(res)
-  stream.method = res.method
-  stream.url = res.url
-  stream.statusCode = res.statusCode
-  stream.socket = res.socket
-  return res.pipe(stream)
 }
