@@ -21,12 +21,31 @@ npm install simple-get
 
 ## usage
 
+### simplest GET request
+
 ```js
 var get = require('simple-get')
 
 get('http://example.com', function (err, res) {
   if (err) throw err
   console.log(res.statusCode) // 200
+  res.pipe(process.stdout) // `res` is a stream
+})
+```
+
+### POST, PUT, PATCH, HEAD, DELETE support
+
+For `POST`, call `get.post` or use option `{ method: 'POST' }`.
+
+```js
+var get = require('simple-get')
+
+var opts = {
+  url: 'http://example.com',
+  body: 'this is the POST body'
+}
+get.post(opts, function (err, res) {
+  if (err) throw err
   res.pipe(process.stdout) // `res` is a stream
 })
 ```
@@ -39,6 +58,8 @@ var concat = require('concat-stream')
 
 get({
   url: 'http://example.com',
+  method: 'POST',
+  body: 'this is the POST body',
 
   // simple-get accepts all options that node.js `http` accepts
   // See: http://nodejs.org/api/http.html#http_http_request_options_callback
