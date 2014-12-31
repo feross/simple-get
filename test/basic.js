@@ -277,7 +277,7 @@ test('redirect http to https', function (t) {
   })
 })
 
-test('post', function (t) {
+test('post (text body)', function (t) {
   t.plan(4)
 
   var server = http.createServer(function (req, res) {
@@ -292,6 +292,34 @@ test('post', function (t) {
       var opts = {
         url: 'http://localhost:' + port,
         body: 'this is the body'
+      }
+      get.post(opts, function (err, res) {
+        t.error(err)
+        t.equal(res.statusCode, 200)
+        res.pipe(concat(function (data) {
+          t.equal(data.toString(), 'this is the body')
+          server.close()
+        }))
+      })
+    })
+  })
+})
+
+test('post (buffer body)', function (t) {
+  t.plan(4)
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.method, 'POST')
+    res.statusCode = 200
+    req.pipe(res)
+  })
+
+  portfinder.getPort(function (err, port) {
+    if (err) throw err
+    server.listen(port, function () {
+      var opts = {
+        url: 'http://localhost:' + port,
+        body: new Buffer('this is the body')
       }
       get.post(opts, function (err, res) {
         t.error(err)
