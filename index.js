@@ -1,12 +1,14 @@
+module.exports = simpleGet
+
 var http = require('http')
 var https = require('https')
 var once = require('once')
 var url = require('url')
 var zlib = require('zlib')
 
-module.exports = function simpleGet (opts, cb) {
+function simpleGet (opts, cb) {
   if (typeof opts === 'string')
-    opts = parseOptsUrl({ url: opts })
+    opts = { url: opts }
   if (typeof cb !== 'function')
     cb = function () {}
   cb = once(cb)
@@ -19,6 +21,12 @@ module.exports = function simpleGet (opts, cb) {
 
   if (opts.url) parseOptsUrl(opts)
 
+  var body = opts.body
+  delete opts.body
+
+  if (body && !opts.method)
+    opts.method = 'POST'
+
   // Accept gzip/deflate
   if (!opts.headers) opts.headers = {}
   var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {
@@ -30,7 +38,7 @@ module.exports = function simpleGet (opts, cb) {
   // Support http: and https: urls
   var protocol = opts.protocol === 'https:' ? https : http
 
-  var req = protocol.get(opts, function (res) {
+  var req = protocol.request(opts, function (res) {
     // Follow 3xx redirects
     if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
       opts.url = res.headers.location
@@ -63,15 +71,28 @@ module.exports = function simpleGet (opts, cb) {
     }
   })
 
+  if (body)
+    req.end(body)
+  else
+    req.end()
+
   req.on('error', cb)
 }
 
+;['get', 'post', 'put', 'patch', 'head', 'delete'].forEach(function (method) {
+  simpleGet[method] = function (opts, cb) {
+    if (typeof opts === 'string')
+      opts = { url: opts }
+    opts.method = method.toUpperCase()
+    return simpleGet(opts, cb)
+  }
+})
+
 function parseOptsUrl (opts) {
   var loc = url.parse(opts.url)
-  delete opts.url
   if (loc.hostname) opts.hostname = loc.hostname
   if (loc.port) opts.port = loc.port
   if (loc.protocol) opts.protocol = loc.protocol
   opts.path = loc.path
-  return opts
+  delete opts.url
 }
