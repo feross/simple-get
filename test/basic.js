@@ -332,3 +332,24 @@ test('post (buffer body)', function (t) {
     })
   })
 })
+
+test('get.concat', function (t) {
+  t.plan(4)
+  var server = http.createServer(function (req, res) {
+    res.statusCode = 200
+    res.end('blah blah blah')
+  })
+
+  portfinder.getPort(function (err, port) {
+    if (err) throw err
+    server.listen(port, function () {
+      get.concat('http://localhost:' + port, function (err, data, res) {
+        t.error(err)
+        t.equal(res.statusCode, 200)
+        t.ok(Buffer.isBuffer(data), '`data` is type buffer')
+        t.equal(data.toString(), 'blah blah blah')
+        server.close()
+      })
+    })
+  })
+})
