@@ -21,7 +21,9 @@ npm install simple-get
 
 ## usage
 
-### simplest GET request
+### simple GET request
+
+Doesn't get easier than this:
 
 ```js
 var get = require('simple-get')
@@ -30,6 +32,20 @@ get('http://example.com', function (err, res) {
   if (err) throw err
   console.log(res.statusCode) // 200
   res.pipe(process.stdout) // `res` is a stream
+})
+```
+
+### even simpler GET request
+
+If you just want the data, and don't want to deal with streams:
+
+```js
+var get = require('simple-get')
+
+get.concat('http://example.com', function (err, data, res) {
+  if (err) throw err
+  console.log(res.statusCode) // 200
+  console.log(data) // 'this is the server response'
 })
 ```
 
