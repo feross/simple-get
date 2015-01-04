@@ -7,50 +7,39 @@ var url = require('url')
 var zlib = require('zlib')
 
 function simpleGet (opts, cb) {
-  if (typeof opts === 'string')
-    opts = { url: opts }
-  if (typeof cb !== 'function')
-    cb = function () {}
-  cb = once(cb)
+  if (typeof opts === 'string') opts = { url: opts }
+  if (typeof cb === 'function') cb = once(cb)
 
-  // Follow up to 10 redirects by default
-  if (opts.maxRedirects === 0)
-    return cb(new Error('too many redirects'))
-  if (!opts.maxRedirects)
-    opts.maxRedirects = 10
+  // Follow redirects
+  if (opts.maxRedirects === 0) return cb(new Error('too many redirects'))
+  if (!opts.maxRedirects) opts.maxRedirects = 10
 
   if (opts.url) parseOptsUrl(opts)
+  if (!opts.headers) opts.headers = {}
 
   var body = opts.body
   delete opts.body
+  if (body && !opts.method) opts.method = 'POST'
 
-  if (body && !opts.method)
-    opts.method = 'POST'
-
-  // Accept gzip/deflate
-  if (!opts.headers) opts.headers = {}
+  // Request gzip/deflate
   var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {
     return h.toLowerCase() === 'accept-encoding'
   })
-  if (!customAcceptEncoding)
-    opts.headers['accept-encoding'] = 'gzip, deflate'
+  if (!customAcceptEncoding) opts.headers['accept-encoding'] = 'gzip, deflate'
 
   // Support http: and https: urls
   var protocol = opts.protocol === 'https:' ? https : http
-
   var req = protocol.request(opts, function (res) {
     // Follow 3xx redirects
     if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
       opts.url = res.headers.location
       parseOptsUrl(opts)
-
       res.resume() // Discard response
-
       opts.maxRedirects -= 1
       return simpleGet(opts, cb)
     }
 
-    // Handle gzip/deflate
+    // Support gzip/deflate
     if (['gzip', 'deflate'].indexOf(res.headers['content-encoding']) !== -1) {
       // Pipe the response through an unzip stream (gunzip, inflate) and wrap it so it
       // looks like an `http.IncomingMessage`.
@@ -70,17 +59,25 @@ function simpleGet (opts, cb) {
       cb(null, res)
     }
   })
-
-  if (body)
-    req.end(body)
-  else
-    req.end()
-
   req.on('error', cb)
+  req.end(body)
+}
+
+module.exports.concat = function (opts, cb) {
+  simpleGet(opts, function (err, res) {
+    if (err) return cb(err)
+    var chunks = []
+    res.on('data', function (chunk) {
+      chunks.push(chunk)
+    })
+    res.on('end', function () {
+      cb(null, Buffer.concat(chunks), res)
+    })
+  })
 }
 
 ;['get', 'post', 'put', 'patch', 'head', 'delete'].forEach(function (method) {
-  simpleGet[method] = function (opts, cb) {
+  module.exports[method] = function (opts, cb) {
     if (typeof opts === 'string')
       opts = { url: opts }
     opts.method = method.toUpperCase()
