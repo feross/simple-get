@@ -1,4 +1,11 @@
-# simple-get [![travis](https://img.shields.io/travis/feross/simple-get.svg)](https://travis-ci.org/feross/simple-get) [![npm](https://img.shields.io/npm/v/simple-get.svg)](https://npmjs.org/package/simple-get) [![downloads](https://img.shields.io/npm/dm/simple-get.svg)](https://npmjs.org/package/simple-get)
+# simple-get [![travis][travis-image]][travis-url] [![npm][npm-image]][npm-url] [![downloads][downloads-image]][downloads-url]
+
+[travis-image]: https://img.shields.io/travis/feross/simple-get.svg?style=flat
+[travis-url]: https://travis-ci.org/feross/simple-get
+[npm-image]: https://img.shields.io/npm/v/simple-get.svg?style=flat
+[npm-url]: https://npmjs.org/package/simple-get
+[downloads-image]: https://img.shields.io/npm/dm/simple-get.svg?style=flat
+[downloads-url]: https://npmjs.org/package/simple-get
 
 ### Simplest way to make http get requests
 
