@@ -78,8 +78,7 @@ module.exports.concat = function (opts, cb) {
 
 ;['get', 'post', 'put', 'patch', 'head', 'delete'].forEach(function (method) {
   module.exports[method] = function (opts, cb) {
-    if (typeof opts === 'string')
-      opts = { url: opts }
+    if (typeof opts === 'string') opts = { url: opts }
     opts.method = method.toUpperCase()
     return simpleGet(opts, cb)
   }
