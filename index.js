@@ -8,7 +8,7 @@ var zlib = require('zlib')
 
 function simpleGet (opts, cb) {
   if (typeof opts === 'string') opts = { url: opts }
-  if (typeof cb === 'function') cb = once(cb)
+  cb = once(cb)
 
   // Follow redirects
   if (opts.maxRedirects === 0) return cb(new Error('too many redirects'))
