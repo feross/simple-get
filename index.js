@@ -11,7 +11,10 @@ function simpleGet (opts, cb) {
   cb = once(cb)
 
   // Follow redirects
-  if (opts.maxRedirects === 0) return cb(new Error('too many redirects'))
+  if (opts.maxRedirects === 0) {
+    cb(new Error('too many redirects'))
+    return
+  }
   if (!opts.maxRedirects) opts.maxRedirects = 10
 
   if (opts.url) parseOptsUrl(opts)
@@ -65,7 +68,7 @@ function simpleGet (opts, cb) {
 }
 
 module.exports.concat = function (opts, cb) {
-  simpleGet(opts, function (err, res) {
+  return simpleGet(opts, function (err, res) {
     if (err) return cb(err)
     var chunks = []
     res.on('data', function (chunk) {
