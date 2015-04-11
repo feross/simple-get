@@ -18,7 +18,7 @@ function simpleGet (opts, cb) {
   if (!opts.headers) opts.headers = {}
 
   var body = opts.body
-  delete opts.body
+  opts.body = undefined
   if (body && !opts.method) opts.method = 'POST'
 
   // Request gzip/deflate
