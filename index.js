@@ -61,6 +61,7 @@ function simpleGet (opts, cb) {
   })
   req.on('error', cb)
   req.end(body)
+  return req
 }
 
 module.exports.concat = function (opts, cb) {
