@@ -1,6 +1,5 @@
 var concat = require('concat-stream')
 var http = require('http')
-var portfinder = require('portfinder')
 var get = require('../')
 var selfSignedHttps = require('self-signed-https')
 var str = require('string-to-stream')
@@ -19,17 +18,15 @@ test('simple get', function (t) {
     res.end('response')
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get('http://localhost:' + port + '/path', function (err, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200)
-        res.pipe(concat(function (data) {
-          t.equal(data.toString(), 'response')
-          server.close()
-        }))
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get('http://localhost:' + port + '/path', function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), 'response')
+        server.close()
+      }))
     })
   })
 })
@@ -52,17 +49,15 @@ test('follow redirects (up to 10)', function (t) {
     }
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get('http://localhost:' + port + '/1', function (err, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200)
-        res.pipe(concat(function (data) {
-          t.equal(data.toString(), 'response')
-          server.close()
-        }))
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get('http://localhost:' + port + '/1', function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), 'response')
+        server.close()
+      }))
     })
   })
 })
@@ -80,13 +75,11 @@ test('follow redirects (11 is too many)', function (t) {
     res.end()
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get('http://localhost:' + port + '/1', function (err) {
-        t.ok(err instanceof Error, 'got error')
-        server.close()
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get('http://localhost:' + port + '/1', function (err) {
+      t.ok(err instanceof Error, 'got error')
+      server.close()
     })
   })
 })
@@ -100,19 +93,17 @@ test('custom headers', function (t) {
     res.end('response')
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get({
-        url: 'http://localhost:' + port,
-        headers: {
-          'custom-header': 'custom-value'
-        }
-      }, function (err, res) {
-        t.error(err)
-        res.resume()
-        server.close()
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get({
+      url: 'http://localhost:' + port,
+      headers: {
+        'custom-header': 'custom-value'
+      }
+    }, function (err, res) {
+      t.error(err)
+      res.resume()
+      server.close()
     })
   })
 })
@@ -126,17 +117,15 @@ test('gzip response', function (t) {
     str('response').pipe(zlib.createGzip()).pipe(res)
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get('http://localhost:' + port, function (err, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200) // statusCode still works on gunzip stream
-        res.pipe(concat(function (data) {
-          t.equal(data.toString(), 'response')
-          server.close()
-        }))
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get('http://localhost:' + port, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200) // statusCode still works on gunzip stream
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), 'response')
+        server.close()
+      }))
     })
   })
 })
@@ -150,17 +139,15 @@ test('deflate response', function (t) {
     str('response').pipe(zlib.createDeflate()).pipe(res)
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get('http://localhost:' + port, function (err, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200) // statusCode still works on inflate stream
-        res.pipe(concat(function (data) {
-          t.equal(data.toString(), 'response')
-          server.close()
-        }))
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get('http://localhost:' + port, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200) // statusCode still works on inflate stream
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), 'response')
+        server.close()
+      }))
     })
   })
 })
@@ -174,17 +161,15 @@ test('https', function (t) {
     res.end('response')
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get('https://localhost:' + port + '/path', function (err, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200)
-        res.pipe(concat(function (data) {
-          t.equal(data.toString(), 'response')
-          server.close()
-        }))
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get('https://localhost:' + port + '/path', function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), 'response')
+        server.close()
+      }))
     })
   })
 })
@@ -208,26 +193,18 @@ test('redirect https to http', function (t) {
     res.end('response')
   })
 
-  portfinder.getPort(function (err, _httpsPort) {
-    if (err) throw err
-    httpsPort = _httpsPort
-
-    httpsServer.listen(httpsPort, function () {
-      portfinder.getPort(function (err, _httpPort) {
-        if (err) throw err
-        httpPort = _httpPort
-
-        httpServer.listen(httpPort, function () {
-          get('https://localhost:' + httpsPort + '/path1', function (err, res) {
-            t.error(err)
-            t.equal(res.statusCode, 200)
-            res.pipe(concat(function (data) {
-              t.equal(data.toString(), 'response')
-              httpsServer.close()
-              httpServer.close()
-            }))
-          })
-        })
+  httpsServer.listen(0, function () {
+    httpsPort = httpsServer.address().port
+    httpServer.listen(0, function () {
+      httpPort = httpServer.address().port
+      get('https://localhost:' + httpsPort + '/path1', function (err, res) {
+        t.error(err)
+        t.equal(res.statusCode, 200)
+        res.pipe(concat(function (data) {
+          t.equal(data.toString(), 'response')
+          httpsServer.close()
+          httpServer.close()
+        }))
       })
     })
   })
@@ -252,26 +229,18 @@ test('redirect http to https', function (t) {
     res.end('response')
   })
 
-  portfinder.getPort(function (err, _httpPort) {
-    if (err) throw err
-    httpPort = _httpPort
-
-    httpServer.listen(httpPort, function () {
-      portfinder.getPort(function (err, _httpsPort) {
-        if (err) throw err
-        httpsPort = _httpsPort
-
-        httpsServer.listen(httpsPort, function () {
-          get('http://localhost:' + httpPort + '/path1', function (err, res) {
-            t.error(err)
-            t.equal(res.statusCode, 200)
-            res.pipe(concat(function (data) {
-              t.equal(data.toString(), 'response')
-              httpsServer.close()
-              httpServer.close()
-            }))
-          })
-        })
+  httpServer.listen(0, function () {
+    httpPort = httpServer.address().port
+    httpsServer.listen(0, function () {
+      httpsPort = httpsServer.address().port
+      get('http://localhost:' + httpPort + '/path1', function (err, res) {
+        t.error(err)
+        t.equal(res.statusCode, 200)
+        res.pipe(concat(function (data) {
+          t.equal(data.toString(), 'response')
+          httpsServer.close()
+          httpServer.close()
+        }))
       })
     })
   })
@@ -286,21 +255,19 @@ test('post (text body)', function (t) {
     req.pipe(res)
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      var opts = {
-        url: 'http://localhost:' + port,
-        body: 'this is the body'
-      }
-      get.post(opts, function (err, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200)
-        res.pipe(concat(function (data) {
-          t.equal(data.toString(), 'this is the body')
-          server.close()
-        }))
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      url: 'http://localhost:' + port,
+      body: 'this is the body'
+    }
+    get.post(opts, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), 'this is the body')
+        server.close()
+      }))
     })
   })
 })
@@ -314,21 +281,19 @@ test('post (buffer body)', function (t) {
     req.pipe(res)
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      var opts = {
-        url: 'http://localhost:' + port,
-        body: new Buffer('this is the body')
-      }
-      get.post(opts, function (err, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200)
-        res.pipe(concat(function (data) {
-          t.equal(data.toString(), 'this is the body')
-          server.close()
-        }))
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      url: 'http://localhost:' + port,
+      body: new Buffer('this is the body')
+    }
+    get.post(opts, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), 'this is the body')
+        server.close()
+      }))
     })
   })
 })
@@ -340,16 +305,14 @@ test('get.concat', function (t) {
     res.end('blah blah blah')
   })
 
-  portfinder.getPort(function (err, port) {
-    if (err) throw err
-    server.listen(port, function () {
-      get.concat('http://localhost:' + port, function (err, data, res) {
-        t.error(err)
-        t.equal(res.statusCode, 200)
-        t.ok(Buffer.isBuffer(data), '`data` is type buffer')
-        t.equal(data.toString(), 'blah blah blah')
-        server.close()
-      })
+  server.listen(0, function () {
+    var port = server.address().port
+    get.concat('http://localhost:' + port, function (err, data, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      t.ok(Buffer.isBuffer(data), '`data` is type buffer')
+      t.equal(data.toString(), 'blah blah blah')
+      server.close()
     })
   })
 })

@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "concat-stream": "^1.4.7",
-    "portfinder": "^0.3.0",
     "self-signed-https": "^1.0.5",
     "standard": "^3.3.0",
     "string-to-stream": "^1.0.0",
