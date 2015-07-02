@@ -16,7 +16,7 @@
   "devDependencies": {
     "concat-stream": "^1.4.7",
     "self-signed-https": "^1.0.5",
-    "standard": "^3.3.0",
+    "standard": "^4.5.2",
     "string-to-stream": "^1.0.0",
     "tape": "^4.0.0"
   },
