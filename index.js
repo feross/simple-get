@@ -5,9 +5,10 @@ var https = require('https')
 var once = require('once')
 var url = require('url')
 var unzipResponse = require('unzip-response')
+var objectAssign = require('object-assign')
 
 function simpleGet (opts, cb) {
-  if (typeof opts === 'string') opts = { url: opts }
+  opts = typeof opts === 'string' ? { url: opts } : objectAssign({}, opts)
   cb = once(cb)
 
   // Follow redirects
