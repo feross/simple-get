@@ -4,7 +4,7 @@ var http = require('http')
 var https = require('https')
 var once = require('once')
 var url = require('url')
-var zlib = require('zlib')
+var unzipResponse = require('unzip-response')
 
 function simpleGet (opts, cb) {
   if (typeof opts === 'string') opts = { url: opts }
@@ -42,25 +42,7 @@ function simpleGet (opts, cb) {
       return simpleGet(opts, cb)
     }
 
-    // Support gzip/deflate
-    if (['gzip', 'deflate'].indexOf(res.headers['content-encoding']) !== -1) {
-      // Pipe the response through an unzip stream (gunzip, inflate) and wrap it so it
-      // looks like an `http.IncomingMessage`.
-      var stream = zlib.createUnzip()
-      res.pipe(stream)
-      res.on('close', function () { stream.emit('close') })
-      stream.httpVersion = res.httpVersion
-      stream.headers = res.headers
-      stream.trailers = res.trailers
-      stream.setTimeout = res.setTimeout.bind(res)
-      stream.method = res.method
-      stream.url = res.url
-      stream.statusCode = res.statusCode
-      stream.socket = res.socket
-      cb(null, stream)
-    } else {
-      cb(null, res)
-    }
+    cb(null, unzipResponse(res))
   })
   req.on('error', cb)
   req.end(body)
