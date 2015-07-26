@@ -16,10 +16,12 @@ function simpleGet (opts, cb) {
     cb(new Error('too many redirects'))
     return
   }
-  if (!opts.maxRedirects) opts.maxRedirects = 10
+
+  opts.followRedirects = typeof opts.followRedirects === 'boolean' ? opts.followRedirects : true
+  opts.maxRedirects = typeof opts.maxRedirects === 'number' ? opts.maxRedirects : 10
+  opts.headers = typeof opts.headers === 'object' ? opts.headers : {}
 
   if (opts.url) parseOptsUrl(opts)
-  if (!opts.headers) opts.headers = {}
 
   var body = opts.body
   opts.body = undefined
@@ -35,7 +37,7 @@ function simpleGet (opts, cb) {
   var protocol = opts.protocol === 'https:' ? https : http
   var req = protocol.request(opts, function (res) {
     // Follow 3xx redirects
-    if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
+    if (opts.followRedirects && res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
       opts.url = res.headers.location
       parseOptsUrl(opts)
       res.resume() // Discard response
