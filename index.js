@@ -4,7 +4,7 @@ var http = require('http')
 var https = require('https')
 var once = require('once')
 var url = require('url')
-var unzipResponse = require('unzip-response')
+var unzipResponse = require('unzip-response') // excluded from browser build
 var objectAssign = require('object-assign')
 
 function simpleGet (opts, cb) {
@@ -43,7 +43,7 @@ function simpleGet (opts, cb) {
       return simpleGet(opts, cb)
     }
 
-    cb(null, unzipResponse(res))
+    cb(null, typeof unzipResponse === 'function' ? unzipResponse(res) : res)
   })
   req.on('error', cb)
   req.end(body)

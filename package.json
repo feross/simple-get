@@ -7,6 +7,9 @@
     "email": "feross@feross.org",
     "url": "http://feross.org/"
   },
+  "browser": {
+    "unzip-response": false
+  },
   "bugs": {
     "url": "https://github.com/feross/simple-get/issues"
   },
