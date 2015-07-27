@@ -11,15 +11,9 @@ function simpleGet (opts, cb) {
   opts = typeof opts === 'string' ? { url: opts } : objectAssign({}, opts)
   cb = once(cb)
 
-  // Follow redirects
-  if (opts.maxRedirects === 0) {
-    cb(new Error('too many redirects'))
-    return
-  }
-  if (!opts.maxRedirects) opts.maxRedirects = 10
-
   if (opts.url) parseOptsUrl(opts)
-  if (!opts.headers) opts.headers = {}
+  if (opts.headers == null) opts.headers = {}
+  if (opts.maxRedirects == null) opts.maxRedirects = 10
 
   var body = opts.body
   opts.body = undefined
@@ -39,8 +33,12 @@ function simpleGet (opts, cb) {
       opts.url = res.headers.location
       parseOptsUrl(opts)
       res.resume() // Discard response
+
       opts.maxRedirects -= 1
-      return simpleGet(opts, cb)
+      if (opts.maxRedirects > 0) simpleGet(opts, cb)
+      else cb(new Error('too many redirects'))
+
+      return
     }
 
     cb(null, typeof unzipResponse === 'function' ? unzipResponse(res) : res)
