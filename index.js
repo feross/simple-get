@@ -1,14 +1,14 @@
 module.exports = simpleGet
 
+var extend = require('xtend')
 var http = require('http')
 var https = require('https')
 var once = require('once')
-var url = require('url')
 var unzipResponse = require('unzip-response') // excluded from browser build
-var objectAssign = require('object-assign')
+var url = require('url')
 
 function simpleGet (opts, cb) {
-  opts = typeof opts === 'string' ? { url: opts } : objectAssign({}, opts)
+  opts = typeof opts === 'string' ? { url: opts } : extend(opts)
   cb = once(cb)
 
   if (opts.url) parseOptsUrl(opts)
