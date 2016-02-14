@@ -330,7 +330,7 @@ test('get.concat', function (t) {
 
   server.listen(0, function () {
     var port = server.address().port
-    get.concat('http://localhost:' + port, function (err, data, res) {
+    get.concat('http://localhost:' + port, function (err, res, data) {
       t.error(err)
       t.equal(res.statusCode, 200)
       t.ok(Buffer.isBuffer(data), '`data` is type buffer')

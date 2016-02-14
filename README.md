@@ -49,10 +49,10 @@ If you just want the data, and don't want to deal with streams:
 ```js
 var get = require('simple-get')
 
-get.concat('http://example.com', function (err, data, res) {
+get.concat('http://example.com', function (err, res, data) {
   if (err) throw err
   console.log(res.statusCode) // 200
-  console.log(data) // 'this is the server response'
+  console.log(data) // Buffer('this is the server response')
 })
 ```
 
