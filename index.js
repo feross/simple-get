@@ -74,6 +74,7 @@ function parseOptsUrl (opts) {
   if (loc.hostname) opts.hostname = loc.hostname
   if (loc.port) opts.port = loc.port
   if (loc.protocol) opts.protocol = loc.protocol
+  if (loc.auth) opts.auth = loc.auth
   opts.path = loc.path
   delete opts.url
 }
