@@ -13,9 +13,10 @@ function simpleGet (opts, cb) {
 
   if (opts.url) parseOptsUrl(opts)
   if (opts.headers == null) opts.headers = {}
+  if (opts.json) opts.headers['content-type'] = 'application/json'
   if (opts.maxRedirects == null) opts.maxRedirects = 10
 
-  var body = opts.body
+  var body = opts.json && opts.body ? JSON.stringify(opts.body) : opts.body
   opts.body = undefined
   if (body && !opts.method) opts.method = 'POST'
 
@@ -56,7 +57,8 @@ module.exports.concat = function (opts, cb) {
       chunks.push(chunk)
     })
     res.on('end', function () {
-      cb(null, res, Buffer.concat(chunks))
+      var data = Buffer.concat(chunks)
+      cb(null, res, opts.json ? JSON.parse(data) : data)
     })
   })
 }
