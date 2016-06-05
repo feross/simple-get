@@ -60,13 +60,12 @@ module.exports.concat = function (opts, cb) {
       var data = Buffer.concat(chunks)
       if (opts.json) {
         try {
-          cb(null, res, JSON.parse(data.toString()))
+          data = JSON.parse(data.toString())
         } catch (err) {
-          cb(err, res, data)
+          return cb(err, res, data)
         }
-      } else {
-        cb(null, res, data)
       }
+      cb(null, res, data)
     })
   })
 }
