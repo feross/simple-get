@@ -108,7 +108,9 @@ get({
 ```
 
 ### JSON Handling
+
 You can serialize/deserialize request and response with JSON:
+
 ```js
 var get = require('simple-get')
 
@@ -125,7 +127,6 @@ get.concat(opts, function (err, res, data) {
   console.log(data.key) // `data` is an object
 })
 ```
-
 
 ## license
 
