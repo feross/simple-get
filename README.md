@@ -107,6 +107,27 @@ get({
 })
 ```
 
+### JSON Handling
+
+You can serialize/deserialize request and response with JSON:
+
+```js
+var get = require('simple-get')
+
+var opts = {
+  method: 'POST',
+  url: 'http://example.com',
+  body: {
+    key: 'value'
+  },
+  json: true
+}
+get.concat(opts, function (err, res, data) {
+  if (err) throw err
+  console.log(data.key) // `data` is an object
+})
+```
+
 ## license
 
 MIT. Copyright (c) [Feross Aboukhadijeh](http://feross.org).

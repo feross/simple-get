@@ -383,3 +383,100 @@ test('access `req` object', function (t) {
     })
   })
 })
+
+test('simple get json', function (t) {
+  t.plan(5)
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.url, '/path')
+    t.equal(req.headers['content-type'], 'application/json')
+    res.statusCode = 200
+    res.end('{"message":"response"}')
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      url: 'http://localhost:' + port + '/path',
+      json: true
+    }
+    get(opts, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      res.pipe(concat(function (data) {
+        t.equal(data.toString(), '{"message":"response"}')
+        server.close()
+      }))
+    })
+  })
+})
+
+test('get.concat json', function (t) {
+  t.plan(3)
+  var server = http.createServer(function (req, res) {
+    res.statusCode = 200
+    res.end('{"message":"response"}')
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      url: 'http://localhost:' + port + '/path',
+      json: true
+    }
+    get.concat(opts, function (err, res, data) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      t.equal(data.message, 'response')
+      server.close()
+    })
+  })
+})
+
+test('get.concat json error', function (t) {
+  t.plan(1)
+  var server = http.createServer(function (req, res) {
+    res.statusCode = 500
+    res.end('not json')
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      url: 'http://localhost:' + port + '/path',
+      json: true
+    }
+    get.concat(opts, function (err, res, data) {
+      t.ok(err instanceof Error)
+      server.close()
+    })
+  })
+})
+
+test('post (json body)', function (t) {
+  t.plan(4)
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.method, 'POST')
+    res.statusCode = 200
+    req.pipe(res)
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      method: 'POST',
+      url: 'http://localhost:' + port,
+      body: {
+        message: 'this is the body'
+      },
+      json: true
+    }
+    get.concat(opts, function (err, res, data) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      t.equal(data.message, 'this is the body')
+      server.close()
+    })
+  })
+})
