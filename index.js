@@ -13,12 +13,14 @@ function simpleGet (opts, cb) {
 
   if (opts.url) parseOptsUrl(opts)
   if (opts.headers == null) opts.headers = {}
-  if (opts.json) opts.headers['content-type'] = 'application/json'
   if (opts.maxRedirects == null) opts.maxRedirects = 10
 
   var body = opts.json ? JSON.stringify(opts.body) : opts.body
   opts.body = undefined
   if (body && !opts.method) opts.method = 'POST'
+
+  if (opts.json) opts.headers['accept'] = 'application/json'
+  if (opts.json && opts.method === 'POST') opts.headers['content-type'] = 'application/json'
 
   // Request gzip/deflate
   var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {

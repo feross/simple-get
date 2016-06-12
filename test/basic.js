@@ -389,7 +389,7 @@ test('simple get json', function (t) {
 
   var server = http.createServer(function (req, res) {
     t.equal(req.url, '/path')
-    t.equal(req.headers['content-type'], 'application/json')
+    t.equal(req.headers['accept'], 'application/json')
     res.statusCode = 200
     res.end('{"message":"response"}')
   })
@@ -454,10 +454,11 @@ test('get.concat json error', function (t) {
 })
 
 test('post (json body)', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   var server = http.createServer(function (req, res) {
     t.equal(req.method, 'POST')
+    t.equal(req.headers['content-type'], 'application/json')
     res.statusCode = 200
     req.pipe(res)
   })
