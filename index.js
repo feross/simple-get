@@ -19,8 +19,8 @@ function simpleGet (opts, cb) {
   opts.body = undefined
   if (body && !opts.method) opts.method = 'POST'
 
-  if (opts.json) opts.headers['accept'] = 'application/json'
-  if (opts.json && opts.method === 'POST') opts.headers['content-type'] = 'application/json'
+  if (opts.json) opts.headers.accept = 'application/json'
+  if (opts.json && body) opts.headers['content-type'] = 'application/json'
 
   // Request gzip/deflate
   var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {
