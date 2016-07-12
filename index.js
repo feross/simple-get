@@ -18,6 +18,7 @@ function simpleGet (opts, cb) {
   var body = opts.json ? JSON.stringify(opts.body) : opts.body
   opts.body = undefined
   if (body && !opts.method) opts.method = 'POST'
+  if (opts.method) opts.method = opts.method.toUpperCase()
 
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.json && body) opts.headers['content-type'] = 'application/json'
@@ -44,7 +45,8 @@ function simpleGet (opts, cb) {
       return
     }
 
-    cb(null, typeof unzipResponse === 'function' ? unzipResponse(res) : res)
+    var tryUnzip = typeof unzipResponse === 'function' && opts.method !== 'HEAD'
+    cb(null, tryUnzip ? unzipResponse(res) : res)
   })
   req.on('error', cb)
   req.end(body)

@@ -481,3 +481,30 @@ test('post (json body)', function (t) {
     })
   })
 })
+
+test('HEAD request', function (t) {
+  t.plan(3)
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.method, 'HEAD')
+    // Taken from real-world response from HEAD request to GitHub.com
+    res.setHeader('content-type', 'text/html; charset=utf-8')
+    res.setHeader('content-encoding', 'gzip')
+    res.setHeader('connection', 'close')
+    res.statusCode = 200
+    req.pipe(res)
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      method: 'HEAD',
+      url: 'http://localhost:' + port
+    }
+    get.head(opts, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      server.close()
+    })
+  })
+})
