@@ -1,6 +1,5 @@
 module.exports = simpleGet
 
-var extend = require('xtend')
 var http = require('http')
 var https = require('https')
 var once = require('once')
@@ -9,7 +8,7 @@ var url = require('url')
 var qs = require('querystring')
 
 function simpleGet (opts, cb) {
-  opts = typeof opts === 'string' ? { url: opts } : extend(opts)
+  opts = typeof opts === 'string' ? { url: opts } : Object.assign({}, opts)
   cb = once(cb)
 
   if (opts.url) parseOptsUrl(opts)
