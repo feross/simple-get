@@ -28,6 +28,8 @@ npm install simple-get
 
 ## usage
 
+Note, all these examples also work in the browser with [browserify](http://browserify.org/).
+
 ### simple GET request
 
 Doesn't get easier than this:

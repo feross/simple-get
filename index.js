@@ -1,29 +1,33 @@
 module.exports = simpleGet
 
+var concat = require('simple-concat')
 var http = require('http')
 var https = require('https')
 var once = require('once')
+var querystring = require('querystring')
 var unzipResponse = require('unzip-response') // excluded from browser build
 var url = require('url')
-var qs = require('querystring')
 
 function simpleGet (opts, cb) {
-  opts = typeof opts === 'string' ? { url: opts } : Object.assign({}, opts)
+  opts = typeof opts === 'string' ? {url: opts} : Object.assign({}, opts)
   cb = once(cb)
 
   if (opts.url) parseOptsUrl(opts)
   if (opts.headers == null) opts.headers = {}
   if (opts.maxRedirects == null) opts.maxRedirects = 10
 
-  var body = opts.json ? JSON.stringify(opts.body) : opts.form ? qs.stringify(opts.form) : opts.body
-  opts.body = undefined
-  if (body && !opts.method) opts.method = 'POST'
-  if (opts.method) opts.method = opts.method.toUpperCase()
+  var body
+  if (opts.form) body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
+  if (opts.body) body = opts.json ? JSON.stringify(opts.body) : opts.body
 
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.json && body) opts.headers['content-type'] = 'application/json'
   if (opts.form) opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   if (body) opts.headers['content-length'] = Buffer.byteLength(body)
+  delete opts.body; delete opts.form
+
+  if (body && !opts.method) opts.method = 'POST'
+  if (opts.method) opts.method = opts.method.toUpperCase()
 
   // Request gzip/deflate
   var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {
@@ -31,7 +35,7 @@ function simpleGet (opts, cb) {
   })
   if (!customAcceptEncoding) opts.headers['accept-encoding'] = 'gzip, deflate'
 
-  // Support http: and https: urls
+  // Support http/https urls
   var protocol = opts.protocol === 'https:' ? https : http
   var req = protocol.request(opts, function (res) {
     // Follow 3xx redirects
@@ -55,28 +59,26 @@ function simpleGet (opts, cb) {
   return req
 }
 
-module.exports.concat = function (opts, cb) {
+simpleGet.concat = function (opts, cb) {
   return simpleGet(opts, function (err, res) {
     if (err) return cb(err)
-    var chunks = []
-    res.on('data', function (chunk) {
-      chunks.push(chunk)
-    })
-    res.on('end', function () {
-      var data = Buffer.concat(chunks)
-      if (!opts.json) return cb(null, res, data)
-      try {
-        cb(null, res, JSON.parse(data.toString()))
-      } catch (err) {
-        cb(err, res, data)
+    concat(res, function (err, data) {
+      if (err) return cb(err)
+      if (opts.json) {
+        try {
+          data = JSON.parse(data.toString())
+        } catch (err) {
+          return cb(err, res, data)
+        }
       }
+      cb(null, res, data)
     })
   })
 }
 
 ;['get', 'post', 'put', 'patch', 'head', 'delete'].forEach(function (method) {
-  module.exports[method] = function (opts, cb) {
-    if (typeof opts === 'string') opts = { url: opts }
+  simpleGet[method] = function (opts, cb) {
+    if (typeof opts === 'string') opts = {url: opts}
     opts.method = method.toUpperCase()
     return simpleGet(opts, cb)
   }
