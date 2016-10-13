@@ -1,6 +1,6 @@
-var concat = require('concat-stream')
-var http = require('http')
+var concat = require('simple-concat')
 var get = require('../')
+var http = require('http')
 var querystring = require('querystring')
 var selfSignedHttps = require('self-signed-https')
 var str = require('string-to-stream')
@@ -11,7 +11,7 @@ var zlib = require('zlib')
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 test('simple get', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   var server = http.createServer(function (req, res) {
     t.equal(req.url, '/path')
@@ -24,16 +24,17 @@ test('simple get', function (t) {
     get('http://localhost:' + port + '/path', function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'response')
         server.close()
-      }))
+      })
     })
   })
 })
 
 test('basic auth', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   var server = http.createServer(function (req, res) {
     t.equal(req.headers.authorization, 'Basic Zm9vOmJhcg==')
@@ -46,16 +47,17 @@ test('basic auth', function (t) {
     get('http://foo:bar@localhost:' + port, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'response')
         server.close()
-      }))
+      })
     })
   })
 })
 
 test('follow redirects (up to 10)', function (t) {
-  t.plan(13)
+  t.plan(14)
 
   var num = 1
   var server = http.createServer(function (req, res) {
@@ -77,10 +79,11 @@ test('follow redirects (up to 10)', function (t) {
     get('http://localhost:' + port + '/1', function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'response')
         server.close()
-      }))
+      })
     })
   })
 })
@@ -155,7 +158,7 @@ test('custom headers', function (t) {
 })
 
 test('gzip response', function (t) {
-  t.plan(3)
+  t.plan(4)
 
   var server = http.createServer(function (req, res) {
     res.statusCode = 200
@@ -168,16 +171,17 @@ test('gzip response', function (t) {
     get('http://localhost:' + port, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200) // statusCode still works on gunzip stream
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'response')
         server.close()
-      }))
+      })
     })
   })
 })
 
 test('deflate response', function (t) {
-  t.plan(3)
+  t.plan(4)
 
   var server = http.createServer(function (req, res) {
     res.statusCode = 200
@@ -190,16 +194,17 @@ test('deflate response', function (t) {
     get('http://localhost:' + port, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200) // statusCode still works on inflate stream
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'response')
         server.close()
-      }))
+      })
     })
   })
 })
 
 test('https', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   var server = selfSignedHttps(function (req, res) {
     t.equal(req.url, '/path')
@@ -212,16 +217,17 @@ test('https', function (t) {
     get('https://localhost:' + port + '/path', function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'response')
         server.close()
-      }))
+      })
     })
   })
 })
 
 test('redirect https to http', function (t) {
-  t.plan(5)
+  t.plan(6)
 
   var httpPort = null
   var httpsPort = null
@@ -246,18 +252,19 @@ test('redirect https to http', function (t) {
       get('https://localhost:' + httpsPort + '/path1', function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
-        res.pipe(concat(function (data) {
+        concat(res, function (err, data) {
+          t.error(err)
           t.equal(data.toString(), 'response')
           httpsServer.close()
           httpServer.close()
-        }))
+        })
       })
     })
   })
 })
 
 test('redirect http to https', function (t) {
-  t.plan(5)
+  t.plan(6)
 
   var httpsPort = null
   var httpPort = null
@@ -282,18 +289,19 @@ test('redirect http to https', function (t) {
       get('http://localhost:' + httpPort + '/path1', function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
-        res.pipe(concat(function (data) {
+        concat(res, function (err, data) {
+          t.error(err)
           t.equal(data.toString(), 'response')
           httpsServer.close()
           httpServer.close()
-        }))
+        })
       })
     })
   })
 })
 
 test('post (text body)', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   var server = http.createServer(function (req, res) {
     t.equal(req.method, 'POST')
@@ -310,16 +318,17 @@ test('post (text body)', function (t) {
     get.post(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'this is the body')
         server.close()
-      }))
+      })
     })
   })
 })
 
 test('post (utf-8 text body)', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   var server = http.createServer(function (req, res) {
     t.equal(req.method, 'POST')
@@ -336,16 +345,17 @@ test('post (utf-8 text body)', function (t) {
     get.post(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'jedan dva tri četiri')
         server.close()
-      }))
+      })
     })
   })
 })
 
 test('post (buffer body)', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   var server = http.createServer(function (req, res) {
     t.equal(req.method, 'POST')
@@ -362,10 +372,11 @@ test('post (buffer body)', function (t) {
     get.post(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), 'this is the body')
         server.close()
-      }))
+      })
     })
   })
 })
@@ -412,7 +423,7 @@ test('access `req` object', function (t) {
 })
 
 test('simple get json', function (t) {
-  t.plan(5)
+  t.plan(6)
 
   var server = http.createServer(function (req, res) {
     t.equal(req.url, '/path')
@@ -430,10 +441,11 @@ test('simple get json', function (t) {
     get(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      res.pipe(concat(function (data) {
+      concat(res, function (err, data) {
+        t.error(err)
         t.equal(data.toString(), '{"message":"response"}')
         server.close()
-      }))
+      })
     })
   })
 })

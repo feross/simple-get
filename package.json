@@ -19,7 +19,6 @@
     "unzip-response": "^2.0.1"
   },
   "devDependencies": {
-    "concat-stream": "^1.4.7",
     "self-signed-https": "^1.0.5",
     "standard": "*",
     "string-to-stream": "^1.0.0",

@@ -79,7 +79,6 @@ A more complex example:
 
 ```js
 var get = require('simple-get')
-var concat = require('concat-stream')
 
 get({
   url: 'http://example.com',
@@ -100,16 +99,16 @@ get({
   res.setTimeout(10000)
   console.log(res.headers)
 
-  res.pipe(concat(function (data) {
-    // `data` is the decoded response, after it's been gunzipped or inflated
+  res.on('data', function (chunk) {
+    // `chunk` is the decoded response, after it's been gunzipped or inflated
     // (if applicable)
-    console.log('got the response: ' + data)
+    console.log('got a chunk of the response: ' + chunk)
   }))
 
 })
 ```
 
-### JSON Handling
+### JSON
 
 You can serialize/deserialize request and response with JSON:
 
