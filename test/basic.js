@@ -1,6 +1,7 @@
 var concat = require('concat-stream')
 var http = require('http')
 var get = require('../')
+var qs = require('querystring')
 var selfSignedHttps = require('self-signed-https')
 var str = require('string-to-stream')
 var test = require('tape')
@@ -503,6 +504,36 @@ test('post (json body)', function (t) {
       t.error(err)
       t.equal(res.statusCode, 200)
       t.equal(data.message, 'this is the body')
+      server.close()
+    })
+  })
+})
+
+test('post (form)', function (t) {
+  t.plan(5)
+
+  var formData = {
+    foo: 'bar'
+  }
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.method, 'POST')
+    t.equal(req.headers['content-type'], 'application/x-www-form-urlencoded')
+    res.statusCode = 200
+    req.pipe(res)
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      method: 'POST',
+      url: 'http://localhost:' + port,
+      form: formData
+    }
+    get.concat(opts, function (err, res, data) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      t.equal(JSON.stringify(qs.parse(data.toString())), JSON.stringify(formData))
       server.close()
     })
   })

@@ -6,6 +6,7 @@ var https = require('https')
 var once = require('once')
 var unzipResponse = require('unzip-response') // excluded from browser build
 var url = require('url')
+var qs = require('querystring')
 
 function simpleGet (opts, cb) {
   opts = typeof opts === 'string' ? { url: opts } : extend(opts)
@@ -15,13 +16,14 @@ function simpleGet (opts, cb) {
   if (opts.headers == null) opts.headers = {}
   if (opts.maxRedirects == null) opts.maxRedirects = 10
 
-  var body = opts.json ? JSON.stringify(opts.body) : opts.body
+  var body = opts.json ? JSON.stringify(opts.body) : opts.form ? qs.stringify(opts.form) : opts.body
   opts.body = undefined
   if (body && !opts.method) opts.method = 'POST'
   if (opts.method) opts.method = opts.method.toUpperCase()
 
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.json && body) opts.headers['content-type'] = 'application/json'
+  if (opts.form) opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   if (body) opts.headers['Content-Length'] = Buffer.byteLength(body)
 
   // Request gzip/deflate
@@ -63,14 +65,12 @@ module.exports.concat = function (opts, cb) {
     })
     res.on('end', function () {
       var data = Buffer.concat(chunks)
-      if (opts.json) {
-        try {
-          data = JSON.parse(data.toString())
-        } catch (err) {
-          return cb(err, res, data)
-        }
+      if (!opts.json) return cb(null, res, data)
+      try {
+        cb(null, res, JSON.parse(data.toString()))
+      } catch (err) {
+        cb(err, res, data)
       }
-      cb(null, res, data)
     })
   })
 }
