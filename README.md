@@ -129,6 +129,23 @@ get.concat(opts, function (err, res, data) {
 })
 ```
 
+### Forms
+
+You can send `application/x-www-form-urlencoded` form data:
+
+```js
+var get = require('simple-get')
+
+var opts = {
+  method: 'POST',
+  url: 'http://example.com',
+  form: {
+    key: 'value'
+  }
+}
+get.concat(opts, function (err, res, data) {})
+```
+
 ## license
 
 MIT. Copyright (c) [Feross Aboukhadijeh](http://feross.org).
