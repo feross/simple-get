@@ -1,6 +1,6 @@
 {
   "name": "simple-get",
-  "description": "Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.",
+  "description": "Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in ~100 lines.",
   "version": "2.3.0",
   "author": {
     "name": "Feross Aboukhadijeh",
