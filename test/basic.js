@@ -7,9 +7,6 @@ var str = require('string-to-stream')
 var test = require('tape')
 var zlib = require('zlib')
 
-// Allow self-signed certs
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
 test('simple get', function (t) {
   t.plan(5)
 
@@ -214,7 +211,10 @@ test('https', function (t) {
 
   server.listen(0, function () {
     var port = server.address().port
-    get('https://localhost:' + port + '/path', function (err, res) {
+    get({
+      url: 'https://localhost:' + port + '/path',
+      rejectUnauthorized: false
+    }, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
@@ -249,7 +249,10 @@ test('redirect https to http', function (t) {
     httpsPort = httpsServer.address().port
     httpServer.listen(0, function () {
       httpPort = httpServer.address().port
-      get('https://localhost:' + httpsPort + '/path1', function (err, res) {
+      get({
+        url: 'https://localhost:' + httpsPort + '/path1',
+        rejectUnauthorized: false
+      }, function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
         concat(res, function (err, data) {
@@ -286,7 +289,10 @@ test('redirect http to https', function (t) {
     httpPort = httpServer.address().port
     httpsServer.listen(0, function () {
       httpsPort = httpsServer.address().port
-      get('http://localhost:' + httpPort + '/path1', function (err, res) {
+      get({
+        url: 'http://localhost:' + httpPort + '/path1',
+        rejectUnauthorized: false
+      }, function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
         concat(res, function (err, data) {
