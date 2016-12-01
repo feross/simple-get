@@ -35,7 +35,7 @@ Note, all these examples also work in the browser with [browserify](http://brows
 Doesn't get easier than this:
 
 ```js
-var get = require('simple-get')
+const get = require('simple-get')
 
 get('http://example.com', function (err, res) {
   if (err) throw err
@@ -49,7 +49,7 @@ get('http://example.com', function (err, res) {
 If you just want the data, and don't want to deal with streams:
 
 ```js
-var get = require('simple-get')
+const get = require('simple-get')
 
 get.concat('http://example.com', function (err, res, data) {
   if (err) throw err
@@ -63,9 +63,9 @@ get.concat('http://example.com', function (err, res, data) {
 For `POST`, call `get.post` or use option `{ method: 'POST' }`.
 
 ```js
-var get = require('simple-get')
+const get = require('simple-get')
 
-var opts = {
+const opts = {
   url: 'http://example.com',
   body: 'this is the POST body'
 }
@@ -75,10 +75,10 @@ get.post(opts, function (err, res) {
 })
 ```
 
-A more complex example:
+#### A more complex example:
 
 ```js
-var get = require('simple-get')
+const get = require('simple-get')
 
 get({
   url: 'http://example.com',
@@ -113,9 +113,9 @@ get({
 You can serialize/deserialize request and response with JSON:
 
 ```js
-var get = require('simple-get')
+const get = require('simple-get')
 
-var opts = {
+const opts = {
   method: 'POST',
   url: 'http://example.com',
   body: {
@@ -129,21 +129,130 @@ get.concat(opts, function (err, res, data) {
 })
 ```
 
-### Forms
+### Proxies
 
-You can send `application/x-www-form-urlencoded` form data:
+You can use the [`tunnel`](https://github.com/koichik/node-tunnel) module with the
+`agent` option to work with proxies:
 
 ```js
-var get = require('simple-get')
+const get = require('simple-get')
+const tunnel = require('tunnel')
 
-var opts = {
-  method: 'POST',
+const opts = {
+  url: 'http://example.com',
+  agent: tunnel.httpOverHttp({
+    proxy: {
+      host: 'localhost'
+    }
+  })
+}
+
+get(opts, function (err, res) {})
+```
+
+### Cookies
+
+You can use the [`cookie`](https://github.com/jshttp/cookie) module to include
+cookies in a request:
+
+```js
+const get = require('simple-get')
+const cookie = require('cookie')
+
+const opts = {
+  url: 'http://example.com',
+  headers: {
+    cookie: cookie.serialize('foo', 'bar')
+  }
+}
+
+get(opts, function (err, res) {})
+```
+
+### Form data
+
+You can use the [`form-data`](https://github.com/form-data/form-data) module to
+create POST request with form data:
+
+```js
+const fs = require('fs')
+const get = require('simple-get')
+const FormData = require('form-data')
+const form = new FormData()
+
+form.append('my_file', fs.createReadStream('/foo/bar.jpg'))
+
+const opts = {
+  url: 'http://example.com',
+  body: form
+}
+
+get.post(opts, function (err, res) {})
+```
+
+#### Or, include `application/x-www-form-urlencoded` form data manually:
+
+```js
+const get = require('simple-get')
+
+const opts = {
   url: 'http://example.com',
   form: {
     key: 'value'
   }
 }
-get.concat(opts, function (err, res, data) {})
+get.post(opts, function (err, res) {})
+```
+
+### OAuth
+
+You can use the [`oauth-1.0a`](https://github.com/ddo/oauth-1.0a) module to create
+a signed OAuth request:
+
+```js
+const get = require('simple-get')
+const crypto  = require('crypto')
+const OAuth = require('oauth-1.0a')
+
+const oauth = OAuth({
+  consumer: {
+    key: process.env.CONSUMER_KEY,
+    secret: process.env.CONSUMER_SECRET
+  },
+  signature_method: 'HMAC-SHA1',
+  hash_function: (baseString, key) => crypto.createHmac('sha1', key).update(baseString).digest('base64')
+})
+
+const token = {
+  key: process.env.ACCESS_TOKEN,
+  secret: process.env.ACCESS_TOKEN_SECRET
+}
+
+const url = 'https://api.twitter.com/1.1/statuses/home_timeline.json'
+
+const opts = {
+  url: url,
+  headers: oauth.toHeader(oauth.authorize({url, method: 'GET'}, token)),
+  json: true
+}
+
+get(opts, function (err, res) {})
+```
+
+### Tip
+
+It's a good idea to set the `'user-agent'` header so the provider can more easily
+see how their resource is used.
+
+```js
+const get = require('simple-get')
+const pkg = require('./package.json')
+
+get('http://example.com', {
+  headers: {
+    'user-agent': `my-module/${pkg.version} (https://github.com/username/my-module)`
+  }
+})
 ```
 
 ## license
