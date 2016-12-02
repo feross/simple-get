@@ -54,7 +54,7 @@ test('basic auth', function (t) {
 })
 
 test('follow redirects (up to 10)', function (t) {
-  t.plan(14)
+  t.plan(15)
 
   var num = 1
   var server = http.createServer(function (req, res) {
@@ -76,6 +76,7 @@ test('follow redirects (up to 10)', function (t) {
     get('http://localhost:' + port + '/1', function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
+      t.equal(res.redirectHistory.length, 9)
       concat(res, function (err, data) {
         t.error(err)
         t.equal(data.toString(), 'response')
@@ -227,7 +228,7 @@ test('https', function (t) {
 })
 
 test('redirect https to http', function (t) {
-  t.plan(6)
+  t.plan(7)
 
   var httpPort = null
   var httpsPort = null
@@ -255,6 +256,7 @@ test('redirect https to http', function (t) {
       }, function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
+        t.equal(res.redirectHistory.length, 1)
         concat(res, function (err, data) {
           t.error(err)
           t.equal(data.toString(), 'response')
@@ -267,7 +269,7 @@ test('redirect https to http', function (t) {
 })
 
 test('redirect http to https', function (t) {
-  t.plan(6)
+  t.plan(7)
 
   var httpsPort = null
   var httpPort = null
@@ -295,6 +297,7 @@ test('redirect http to https', function (t) {
       }, function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
+        t.equal(res.redirectHistory.length, 1)
         concat(res, function (err, data) {
           t.error(err)
           t.equal(data.toString(), 'response')

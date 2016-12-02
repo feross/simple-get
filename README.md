@@ -18,7 +18,7 @@ This module is designed to be the lightest possible wrapper on top of node.js `h
 - supports HTTPS
 - supports convenience `url` key so there's no need to use `url.parse` on the url when specifying options
 
-All this in < 100 lines of code.
+All this in ~100 lines of code.
 
 ## install
 

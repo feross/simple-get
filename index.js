@@ -15,6 +15,7 @@ function simpleGet (opts, cb) {
   if (opts.url) parseOptsUrl(opts)
   if (opts.headers == null) opts.headers = {}
   if (opts.maxRedirects == null) opts.maxRedirects = 10
+  if (opts.redirectHistory == null) opts.redirectHistory = []
 
   var body
   if (opts.form) body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
@@ -45,11 +46,17 @@ function simpleGet (opts, cb) {
       res.resume() // Discard response
 
       opts.maxRedirects -= 1
-      if (opts.maxRedirects > 0) simpleGet(opts, cb)
-      else cb(new Error('too many redirects'))
+      if (opts.maxRedirects > 0) {
+        opts.redirectHistory.push(res)
+        simpleGet(opts, cb)
+      } else {
+        cb(new Error('too many redirects'))
+      }
 
       return
     }
+
+    res.redirectHistory = opts.redirectHistory
 
     var tryUnzip = typeof unzipResponse === 'function' && opts.method !== 'HEAD'
     cb(null, tryUnzip ? unzipResponse(res) : res)
