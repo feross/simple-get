@@ -611,3 +611,26 @@ test('HEAD request', function (t) {
     })
   })
 })
+
+test('timeout option', function (t) {
+  t.plan(2)
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.url, '/path')
+    setTimeout(function () {
+      // response should not be sent - should timeout before it's sent
+      res.end('response')
+    }, 2000)
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    get({
+      url: 'http://localhost:' + port + '/path',
+      timeout: 1000
+    }, function (err, res) {
+      t.ok(err instanceof Error)
+      server.close()
+    })
+  })
+})
