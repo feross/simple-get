@@ -54,6 +54,10 @@ function simpleGet (opts, cb) {
     var tryUnzip = typeof unzipResponse === 'function' && opts.method !== 'HEAD'
     cb(null, tryUnzip ? unzipResponse(res) : res)
   })
+  req.on('timeout', function () {
+    req.abort()
+    cb(new Error('Request timed out'))
+  })
   req.on('error', cb)
   req.end(body)
   return req

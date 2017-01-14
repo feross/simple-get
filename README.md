@@ -239,6 +239,23 @@ const opts = {
 get(opts, function (err, res) {})
 ```
 
+### Timeout
+
+You can set a timeout (in milliseconds) on the request with the `timeout` option.
+If the request takes longer than `timeout` to complete, then the entire request
+will fail with an `Error`.
+
+```js
+const get = require('simple-get')
+
+const opts = {
+  url: 'http://example.com',
+  timeout: 2000 // 2 second timeout
+}
+
+get(opts, function (err, res) {})
+```
+
 ### Tip
 
 It's a good idea to set the `'user-agent'` header so the provider can more easily
