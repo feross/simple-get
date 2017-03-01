@@ -16,9 +16,9 @@ This module is the lightest possible wrapper on top of node.js `http`, but suppo
 - follows redirects
 - automatically handles gzip/deflate responses
 - supports HTTPS
+- supports specifying a timeout
 - supports convenience `url` key so there's no need to use `url.parse` on the url when specifying options
-- supports JSON stringify and parse in requests/responses (with `json: true` option)
-- composes easily with third-party packages for advanced features like cookies, proxies, form data, & OAuth.
+- composes well with npm packages for features like cookies, proxies, form data, & OAuth
 
 All this in < 100 lines of code.
 
