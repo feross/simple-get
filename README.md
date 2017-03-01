@@ -11,12 +11,14 @@
 
 ## features
 
-This module is designed to be the lightest possible wrapper on top of node.js `http`, but supporting essential features:
+This module is the lightest possible wrapper on top of node.js `http`, but supporting these essential features:
 
 - follows redirects
 - automatically handles gzip/deflate responses
 - supports HTTPS
 - supports convenience `url` key so there's no need to use `url.parse` on the url when specifying options
+- supports JSON stringify and parse in requests/responses (with `json: true` option)
+- composes easily with third-party packages for advanced features like cookies, proxies, form data, & OAuth.
 
 All this in < 100 lines of code.
 
@@ -129,6 +131,39 @@ get.concat(opts, function (err, res, data) {
 })
 ```
 
+### Timeout
+
+You can set a timeout (in milliseconds) on the request with the `timeout` option.
+If the request takes longer than `timeout` to complete, then the entire request
+will fail with an `Error`.
+
+```js
+const get = require('simple-get')
+
+const opts = {
+  url: 'http://example.com',
+  timeout: 2000 // 2 second timeout
+}
+
+get(opts, function (err, res) {})
+```
+
+### One Quick Tip
+
+It's a good idea to set the `'user-agent'` header so the provider can more easily
+see how their resource is used.
+
+```js
+const get = require('simple-get')
+const pkg = require('./package.json')
+
+get('http://example.com', {
+  headers: {
+    'user-agent': `my-module/${pkg.version} (https://github.com/username/my-module)`
+  }
+})
+```
+
 ### Proxies
 
 You can use the [`tunnel`](https://github.com/koichik/node-tunnel) module with the
@@ -237,39 +272,6 @@ const opts = {
 }
 
 get(opts, function (err, res) {})
-```
-
-### Timeout
-
-You can set a timeout (in milliseconds) on the request with the `timeout` option.
-If the request takes longer than `timeout` to complete, then the entire request
-will fail with an `Error`.
-
-```js
-const get = require('simple-get')
-
-const opts = {
-  url: 'http://example.com',
-  timeout: 2000 // 2 second timeout
-}
-
-get(opts, function (err, res) {})
-```
-
-### Tip
-
-It's a good idea to set the `'user-agent'` header so the provider can more easily
-see how their resource is used.
-
-```js
-const get = require('simple-get')
-const pkg = require('./package.json')
-
-get('http://example.com', {
-  headers: {
-    'user-agent': `my-module/${pkg.version} (https://github.com/username/my-module)`
-  }
-})
 ```
 
 ## license
