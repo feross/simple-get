@@ -11,7 +11,7 @@
 
 ## features
 
-This module is designed to be the lightest possible wrapper on top of node.js `http`, but supporting:
+This module is designed to be the lightest possible wrapper on top of node.js `http`, but supporting essential features:
 
 - follows redirects
 - automatically handles gzip/deflate responses
