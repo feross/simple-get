@@ -373,7 +373,7 @@ test('post (buffer body)', function (t) {
     var port = server.address().port
     var opts = {
       url: 'http://localhost:' + port,
-      body: new Buffer('this is the body')
+      body: Buffer.from('this is the body')
     }
     get.post(opts, function (err, res) {
       t.error(err)
