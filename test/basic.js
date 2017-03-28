@@ -130,6 +130,40 @@ test('follow redirects (11 is too many)', function (t) {
   })
 })
 
+test('set referrer when redirecting', function (t) {
+  t.plan(9)
+
+  var num = 1
+  var server = http.createServer(function (req, res) {
+    var referrer = num !== 1
+      ? 'http://localhost:' + this.address().port + '/' + (num - 1)
+      : undefined
+
+    t.equal(req.url, '/' + num, 'visited /' + num)
+    t.equal(req.headers['referer'], referrer, 'Referer(' + num + '): ' + req.headers['referer'])
+    num += 1
+
+    if (num >= 5) {
+      res.statusCode = 200
+    } else if (req.headers['referer'] === referrer) {
+      res.statusCode = 301
+      res.setHeader('Location', '/' + num)
+    } else {
+      res.statusCode = 403
+    }
+
+    res.end()
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    get('http://localhost:' + port + '/1', function (err) {
+      t.error(err)
+      server.close()
+    })
+  })
+})
+
 test('custom headers', function (t) {
   t.plan(2)
 

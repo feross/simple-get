@@ -40,6 +40,7 @@ function simpleGet (opts, cb) {
   var req = protocol.request(opts, function (res) {
     // Follow 3xx redirects
     if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
+      setReferrer(opts)
       opts.url = res.headers.location
       parseOptsUrl(opts)
       res.resume() // Discard response
@@ -87,6 +88,21 @@ simpleGet.concat = function (opts, cb) {
     return simpleGet(opts, cb)
   }
 })
+
+function setReferrer (opts) {
+  var key = Object.keys(opts.headers).find(function (h) {
+    h = h.toLowerCase()
+    return h === 'referer' || h === 'referrer'
+  }) || 'referer'
+
+  opts.headers = opts.headers || {}
+  opts.headers[key] = url.format({
+    hostname: opts.hostname,
+    port: opts.port,
+    protocol: opts.protocol,
+    pathname: opts.path
+  })
+}
 
 function parseOptsUrl (opts) {
   var loc = url.parse(opts.url)
