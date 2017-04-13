@@ -44,10 +44,12 @@ function simpleGet (opts, cb) {
       parseOptsUrl(opts)
       res.resume() // Discard response
 
-      opts.maxRedirects -= 1
-      if (opts.maxRedirects > 0) simpleGet(opts, cb)
-      else cb(new Error('too many redirects'))
-
+      if (opts.maxRedirects > 0) {
+        opts.maxRedirects -= 1
+        simpleGet(opts, cb)
+      } else {
+        cb(new Error('too many redirects'))
+      }
       return
     }
 
