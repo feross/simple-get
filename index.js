@@ -41,7 +41,6 @@ function simpleGet (opts, cb) {
     // Follow 3xx redirects
     if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
       opts.url = res.headers.location
-      parseOptsUrl(opts)
       res.resume() // Discard response
 
       if (opts.maxRedirects > 0) {
