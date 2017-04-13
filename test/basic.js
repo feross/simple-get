@@ -54,14 +54,14 @@ test('basic auth', function (t) {
 })
 
 test('follow redirects (up to 10)', function (t) {
-  t.plan(14)
+  t.plan(15)
 
-  var num = 1
+  var num = 0
   var server = http.createServer(function (req, res) {
     t.equal(req.url, '/' + num, 'visited /' + num)
-    num += 1
 
-    if (num <= 10) {
+    if (num < 10) {
+      num += 1
       res.statusCode = 301
       res.setHeader('Location', '/' + num)
       res.end()
@@ -73,7 +73,7 @@ test('follow redirects (up to 10)', function (t) {
 
   server.listen(0, function () {
     var port = server.address().port
-    get('http://localhost:' + port + '/1', function (err, res) {
+    get('http://localhost:' + port + '/0', function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
@@ -89,17 +89,17 @@ test('do not follow redirects', function (t) {
   t.plan(2)
 
   var server = http.createServer(function (req, res) {
-    t.equal(req.url, '/1', 'visited /1')
+    t.equal(req.url, '/0', 'visited /0')
 
     res.statusCode = 301
-    res.setHeader('Location', '/2')
+    res.setHeader('Location', '/1')
     res.end()
   })
 
   server.listen(0, function () {
     var port = server.address().port
     get({
-      url: 'http://localhost:' + port + '/1',
+      url: 'http://localhost:' + port + '/0',
       maxRedirects: 0
     }, function (err) {
       t.ok(err instanceof Error, 'got error')
@@ -109,21 +109,25 @@ test('do not follow redirects', function (t) {
 })
 
 test('follow redirects (11 is too many)', function (t) {
-  t.plan(11)
+  t.plan(12)
 
-  var num = 1
+  var num = 0
   var server = http.createServer(function (req, res) {
     t.equal(req.url, '/' + num, 'visited /' + num)
-    num += 1
 
-    res.statusCode = 301
-    res.setHeader('Location', '/' + num)
-    res.end()
+    if (num < 11) {
+      num += 1
+      res.statusCode = 301
+      res.setHeader('Location', '/' + num)
+      res.end()
+    } else {
+      t.fail('no request to /11 should be made, should error first')
+    }
   })
 
   server.listen(0, function () {
     var port = server.address().port
-    get('http://localhost:' + port + '/1', function (err) {
+    get('http://localhost:' + port + '/0', function (err) {
       t.ok(err instanceof Error, 'got error')
       server.close()
     })
