@@ -391,6 +391,34 @@ test('post (buffer body)', function (t) {
   })
 })
 
+test('post (stream body)', function (t) {
+  t.plan(6)
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.method, 'POST')
+    res.statusCode = 200
+    t.notOk(req.headers['content-length'])
+    req.pipe(res)
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      url: 'http://localhost:' + port,
+      body: str('this is the body')
+    }
+    get.post(opts, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      concat(res, function (err, data) {
+        t.error(err)
+        t.equal(data.toString(), 'this is the body')
+        server.close()
+      })
+    })
+  })
+})
+
 test('get.concat', function (t) {
   t.plan(4)
   var server = http.createServer(function (req, res) {

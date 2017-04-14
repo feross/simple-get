@@ -23,7 +23,7 @@ function simpleGet (opts, cb) {
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.json && body) opts.headers['content-type'] = 'application/json'
   if (opts.form) opts.headers['content-type'] = 'application/x-www-form-urlencoded'
-  if (body) opts.headers['content-length'] = Buffer.byteLength(body)
+  if (body && !isStream(body)) opts.headers['content-length'] = Buffer.byteLength(body)
   delete opts.body; delete opts.form
 
   if (body && !opts.method) opts.method = 'POST'
@@ -60,7 +60,15 @@ function simpleGet (opts, cb) {
     cb(new Error('Request timed out'))
   })
   req.on('error', cb)
-  req.end(body)
+
+  if (body && isStream(body)) {
+    body
+      .on('error', cb)
+      .pipe(req)
+  } else {
+    req.end(body)
+  }
+
   return req
 }
 
@@ -97,4 +105,8 @@ function parseOptsUrl (opts) {
   if (loc.auth) opts.auth = loc.auth
   opts.path = loc.path
   delete opts.url
+}
+
+function isStream (value) {
+  return typeof value.pipe === 'function'
 }
