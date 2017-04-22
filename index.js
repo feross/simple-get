@@ -24,7 +24,8 @@ function simpleGet (opts, cb) {
   if (opts.json && body) opts.headers['content-type'] = 'application/json'
   if (opts.form) opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   if (body && !isStream(body)) opts.headers['content-length'] = Buffer.byteLength(body)
-  delete opts.body; delete opts.form
+  delete opts.body
+  delete opts.form
 
   if (body && !opts.method) opts.method = 'POST'
   if (opts.method) opts.method = opts.method.toUpperCase()
@@ -61,13 +62,8 @@ function simpleGet (opts, cb) {
   })
   req.on('error', cb)
 
-  if (body && isStream(body)) {
-    body
-      .on('error', cb)
-      .pipe(req)
-  } else {
-    req.end(body)
-  }
+  if (body && isStream(body)) body.on('error', cb).pipe(req)
+  else req.end(body)
 
   return req
 }
@@ -107,6 +103,4 @@ function parseOptsUrl (opts) {
   delete opts.url
 }
 
-function isStream (value) {
-  return typeof value.pipe === 'function'
-}
+function isStream (obj) { return typeof obj.pipe === 'function' }
