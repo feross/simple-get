@@ -276,6 +276,31 @@ const opts = {
 get(opts, function (err, res) {})
 ```
 
+### Throttle requests
+
+You can use [limiter](https://github.com/jhurliman/node-rate-limiter) to throttle requests. This is useful when calling an API that is rate limited.
+
+```js
+const simpleGet = require('simple-get')
+const RateLimiter = require('limiter').RateLimiter
+const limiter = new RateLimiter(1, 'second')
+
+const get = (opts, cb) => limiter.removeTokens(1, () => simpleGet(opts, cb))
+get.concat = (opts, cb) => limiter.removeTokens(1, () => simpleGet.concat(opts, cb))
+
+var opts = {
+  url: 'http://example.com'
+}
+
+get.concat(opts, processResult)
+get.concat(opts, processResult)
+
+function processResult (err, res, data) {
+  if (err) throw err
+  console.log(data.toString())
+}
+```
+
 ## license
 
 MIT. Copyright (c) [Feross Aboukhadijeh](http://feross.org).
