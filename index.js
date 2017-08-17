@@ -12,7 +12,7 @@ function simpleGet (opts, cb) {
   cb = once(cb)
 
   if (opts.url) parseOptsUrl(opts)
-  if (opts.headers == null) opts.headers = {}
+  opts.headers = extend(opts.headers)
   if (opts.maxRedirects == null) opts.maxRedirects = 10
 
   var body = opts.body
