@@ -419,6 +419,32 @@ test('post (stream body)', function (t) {
   })
 })
 
+test('get.concat (post, stream body, and json option)', function (t) {
+  t.plan(4)
+
+  var server = http.createServer(function (req, res) {
+    res.statusCode = 200
+    req.pipe(res)
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      url: 'http://localhost:' + port,
+      body: str('{"a": "b"}'),
+      method: 'POST',
+      json: true
+    }
+    get.concat(opts, function (err, res, data) {
+      t.error(err)
+      t.equal(typeof data, 'object')
+      t.deepEqual(Object.keys(data), ['a'])
+      t.equal(data.a, 'b')
+      server.close()
+    })
+  })
+})
+
 test('get.concat', function (t) {
   t.plan(4)
   var server = http.createServer(function (req, res) {
