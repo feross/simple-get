@@ -18,7 +18,7 @@ function simpleGet (opts, cb) {
 
   var body
   if (opts.form) body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
-  if (opts.body) body = opts.json ? JSON.stringify(opts.body) : opts.body
+  if (opts.body) body = opts.json && !isStream(opts.body) ? JSON.stringify(opts.body) : opts.body
 
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.json && body) opts.headers['content-type'] = 'application/json'
