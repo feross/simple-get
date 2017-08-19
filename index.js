@@ -10,10 +10,10 @@ var url = require('url')
 
 function simpleGet (opts, cb) {
   opts = typeof opts === 'string' ? {url: opts} : Object.assign({}, opts)
+  opts.headers = Object.assign({}, opts.headers)
   cb = once(cb)
 
   if (opts.url) parseOptsUrl(opts)
-  if (opts.headers == null) opts.headers = {}
   if (opts.maxRedirects == null) opts.maxRedirects = 10
 
   var body
