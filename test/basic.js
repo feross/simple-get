@@ -692,3 +692,43 @@ test('timeout option', function (t) {
     })
   })
 })
+
+test('rewrite POST redirects to GET', function (t) {
+  t.plan(8)
+
+  var redirected = false
+
+  var server = http.createServer(function (req, res) {
+    if (redirected) {
+      t.equal(req.url, '/getthis')
+      t.equal(req.method, 'GET')
+      t.notOk(req.headers['content-length'])
+      res.statusCode = 200
+      req.pipe(res)
+    } else {
+      t.equal(req.method, 'POST')
+      redirected = true
+      res.statusCode = 301
+      res.setHeader('Location', '/getthis')
+      res.end()
+    }
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    var opts = {
+      method: 'POST',
+      body: '123',
+      url: 'http://localhost:' + port
+    }
+    get(opts, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      concat(res, function (err, data) {
+        t.error(err)
+        t.equal(data.toString(), '')
+        server.close()
+      })
+    })
+  })
+})
