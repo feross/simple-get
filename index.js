@@ -5,7 +5,7 @@ var http = require('http')
 var https = require('https')
 var once = require('once')
 var querystring = require('querystring')
-var unzipResponse = require('unzip-response') // excluded from browser build
+var decompressResponse = require('decompress-response') // excluded from browser build
 var url = require('url')
 
 function simpleGet (opts, cb) {
@@ -53,8 +53,8 @@ function simpleGet (opts, cb) {
       return
     }
 
-    var tryUnzip = typeof unzipResponse === 'function' && opts.method !== 'HEAD'
-    cb(null, tryUnzip ? unzipResponse(res) : res)
+    var tryUnzip = typeof decompressResponse === 'function' && opts.method !== 'HEAD'
+    cb(null, tryUnzip ? decompressResponse(res) : res)
   })
   req.on('timeout', function () {
     req.abort()
