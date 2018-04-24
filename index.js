@@ -19,12 +19,11 @@ function simpleGet (opts, cb) {
   if (opts.method) opts.method = opts.method.toUpperCase()
 
   var body
-  if (opts.json) opts.headers.accept = 'application/json'
-  if (opts.form) opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   if (opts.body) {
     body = opts.json && !isStream(opts.body) ? JSON.stringify(opts.body) : opts.body
   } else if (opts.form) {
     body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
+    opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   }
   delete opts.body; delete opts.form
 
@@ -39,6 +38,7 @@ function simpleGet (opts, cb) {
     return h.toLowerCase() === 'accept-encoding'
   })
   if (!customAcceptEncoding) opts.headers['accept-encoding'] = 'gzip, deflate'
+  if (opts.json) opts.headers.accept = 'application/json'
 
   var protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   var req = protocol.request(opts, function (res) {
