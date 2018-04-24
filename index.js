@@ -23,7 +23,7 @@ function simpleGet (opts, cb) {
   }
 
   const headers = {'accept-encoding': 'gzip, deflate'}
-  if (opts.headers) Object.entries(opts.headers).forEach(([k, v]) => (headers[k.toLowerCase()] = v))
+  if (opts.headers) Object.keys(opts.headers).forEach(k => (headers[k.toLowerCase()] = opts.headers[k]))
   opts.headers = headers
 
   let body
