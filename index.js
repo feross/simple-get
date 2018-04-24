@@ -36,29 +36,22 @@ function simpleGet (opts, cb) {
   })
   if (!customAcceptEncoding) opts.headers['accept-encoding'] = 'gzip, deflate'
 
-  // Support http/https urls
-  var protocol = opts.protocol === 'https:' ? https : http
+  var protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   var req = protocol.request(opts, function (res) {
-    // Follow 3xx redirects
     if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
-      opts.url = res.headers.location
-      delete opts.headers.host
+      opts.url = res.headers.location // Follow 3xx redirects
+      delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
 
-      // move redirected POST requests to GET (https://tools.ietf.org/html/rfc7231#section-6.4)
       if ((res.statusCode === 301 || res.statusCode === 302) && opts.method === 'POST') {
-        opts.method = 'GET'
+        opts.method = 'GET' // On 301/302 redirect, change POST to GET (see #35)
         delete opts.headers['content-length']
         delete opts.headers['content-type']
       }
 
-      if (opts.maxRedirects > 0) {
-        opts.maxRedirects -= 1
-        simpleGet(opts, cb)
-      } else {
-        cb(new Error('too many redirects'))
-      }
-      return
+      if (opts.maxRedirects === 0) return cb(new Error('too many redirects'))
+      opts.maxRedirects -= 1
+      return simpleGet(opts, cb)
     }
 
     var tryUnzip = typeof decompressResponse === 'function' && opts.method !== 'HEAD'
