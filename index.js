@@ -23,13 +23,15 @@ function simpleGet (opts, cb) {
   if (opts.body) body = opts.json && !isStream(opts.body) ? JSON.stringify(opts.body) : opts.body
 
   if (opts.json) opts.headers.accept = 'application/json'
-  if (opts.json && body) opts.headers['content-type'] = 'application/json'
   if (opts.form) opts.headers['content-type'] = 'application/x-www-form-urlencoded'
-  if (body && !isStream(body)) opts.headers['content-length'] = Buffer.byteLength(body)
   delete opts.body
   delete opts.form
 
-  if (body && !opts.method) opts.method = 'POST'
+  if (body) {
+    if (!opts.method) opts.method = 'POST'
+    if (!isStream(body)) opts.headers['content-length'] = Buffer.byteLength(body)
+    if (opts.json) opts.headers['content-type'] = 'application/json'
+  }
 
   // Request gzip/deflate
   var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {
