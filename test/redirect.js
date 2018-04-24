@@ -191,7 +191,6 @@ test('redirect to different host/port', function (t) {
     port1 = server1.address().port
     server2.listen(0, function () {
       port2 = server2.address().port
-      console.log(port1, port2)
       get('http://localhost:' + port1 + '/path1', function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
@@ -235,7 +234,6 @@ test('redirect should clear explicitly specified `host` header', function (t) {
     port1 = server1.address().port
     server2.listen(0, function () {
       port2 = server2.address().port
-      console.log(port1, port2)
       get({
         url: `http://localhost:${port1}/path1`,
         // Explicitly specify a `Host` header, so it won't be set automatically
