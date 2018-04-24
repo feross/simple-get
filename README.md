@@ -22,7 +22,7 @@ This module is the lightest possible wrapper on top of node.js `http`, but suppo
 - supports convenience `url` key so there's no need to use `url.parse` on the url when specifying options
 - composes well with npm packages for features like cookies, proxies, form data, & OAuth
 
-All this in < 120 lines of code.
+All this in < 100 lines of code.
 
 ## install
 
