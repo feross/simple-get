@@ -13,6 +13,7 @@ function simpleGet (opts, cb) {
   cb = once(cb)
 
   opts.headers = Object.assign({}, opts.headers)
+  parseHeaders(opts.headers)
 
   if (opts.url) parseOptsUrl(opts)
   if (opts.maxRedirects == null) opts.maxRedirects = 10
@@ -33,12 +34,8 @@ function simpleGet (opts, cb) {
     if (opts.json) opts.headers['content-type'] = 'application/json'
   }
 
-  // Request gzip/deflate
-  var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {
-    return h.toLowerCase() === 'accept-encoding'
-  })
-  if (!customAcceptEncoding) opts.headers['accept-encoding'] = 'gzip, deflate'
   if (opts.json) opts.headers.accept = 'application/json'
+  if (!opts.headers['accept-encoding']) opts.headers['accept-encoding'] = 'gzip, deflate' // Prefer gzip
 
   var protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   var req = protocol.request(opts, function (res) {
@@ -97,6 +94,15 @@ simpleGet.concat = function (opts, cb) {
     return simpleGet(opts, cb)
   }
 })
+
+function parseHeaders (headers) {
+  Object.keys(headers).forEach(function (h) {
+    if (h.toLowerCase() !== h) {
+      headers[h.toLowerCase()] = headers[h]
+      delete headers[h]
+    }
+  })
+}
 
 function parseOptsUrl (opts) {
   var loc = url.parse(opts.url)
