@@ -19,13 +19,14 @@ function simpleGet (opts, cb) {
   if (opts.method) opts.method = opts.method.toUpperCase()
 
   var body
-  if (opts.form) body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
-  if (opts.body) body = opts.json && !isStream(opts.body) ? JSON.stringify(opts.body) : opts.body
-
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.form) opts.headers['content-type'] = 'application/x-www-form-urlencoded'
-  delete opts.body
-  delete opts.form
+  if (opts.body) {
+    body = opts.json && !isStream(opts.body) ? JSON.stringify(opts.body) : opts.body
+  } else if (opts.form) {
+    body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
+  }
+  delete opts.body; delete opts.form
 
   if (body) {
     if (!opts.method) opts.method = 'POST'
