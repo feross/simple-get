@@ -11,8 +11,8 @@ const url = require('url')
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
 function simpleGet (opts, cb) {
-  opts = typeof opts === 'string' ? { url: opts } : { ...opts }
-  opts = {maxRedirects: 10, ...opts}
+  opts = typeof opts === 'string' ? { url: opts } : Object.assign({}, opts)
+  opts = Object.assign({ maxRedirects: 10 }, opts)
   cb = once(cb)
 
   if (opts.url) {
@@ -94,6 +94,6 @@ simpleGet.concat = (opts, cb) => {
 ;['get', 'post', 'put', 'patch', 'head', 'delete'].forEach(method => {
   simpleGet[method] = (opts, cb) => {
     if (typeof opts === 'string') opts = {url: opts}
-    return simpleGet({method: method.toUpperCase(), ...opts}, cb)
+    return simpleGet(Object.assign({ method: method.toUpperCase() }, opts), cb)
   }
 })
