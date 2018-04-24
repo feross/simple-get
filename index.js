@@ -10,11 +10,13 @@ var url = require('url')
 
 function simpleGet (opts, cb) {
   opts = typeof opts === 'string' ? {url: opts} : Object.assign({}, opts)
-  opts.headers = Object.assign({}, opts.headers)
   cb = once(cb)
+
+  opts.headers = Object.assign({}, opts.headers)
 
   if (opts.url) parseOptsUrl(opts)
   if (opts.maxRedirects == null) opts.maxRedirects = 10
+  if (opts.method) opts.method = opts.method.toUpperCase()
 
   var body
   if (opts.form) body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
@@ -28,7 +30,6 @@ function simpleGet (opts, cb) {
   delete opts.form
 
   if (body && !opts.method) opts.method = 'POST'
-  if (opts.method) opts.method = opts.method.toUpperCase()
 
   // Request gzip/deflate
   var customAcceptEncoding = Object.keys(opts.headers).some(function (h) {
