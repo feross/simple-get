@@ -13,9 +13,24 @@ function simpleGet (opts, cb) {
   cb = once(cb)
 
   opts.headers = Object.assign({}, opts.headers)
-  parseHeaders(opts.headers)
 
-  if (opts.url) parseOptsUrl(opts)
+  Object.keys(opts.headers).forEach(function (h) {
+    if (h.toLowerCase() !== h) {
+      opts.headers[h.toLowerCase()] = opts.headers[h]
+      delete opts.headers[h]
+    }
+  })
+
+  if (opts.url) {
+    var loc = url.parse(opts.url)
+    if (loc.hostname) opts.hostname = loc.hostname
+    if (loc.port) opts.port = loc.port
+    if (loc.protocol) opts.protocol = loc.protocol
+    if (loc.auth) opts.auth = loc.auth
+    opts.path = loc.path
+    delete opts.url
+  }
+
   if (opts.maxRedirects == null) opts.maxRedirects = 10
   if (opts.method) opts.method = opts.method.toUpperCase()
 
@@ -94,24 +109,5 @@ simpleGet.concat = function (opts, cb) {
     return simpleGet(opts, cb)
   }
 })
-
-function parseHeaders (headers) {
-  Object.keys(headers).forEach(function (h) {
-    if (h.toLowerCase() !== h) {
-      headers[h.toLowerCase()] = headers[h]
-      delete headers[h]
-    }
-  })
-}
-
-function parseOptsUrl (opts) {
-  var loc = url.parse(opts.url)
-  if (loc.hostname) opts.hostname = loc.hostname
-  if (loc.port) opts.port = loc.port
-  if (loc.protocol) opts.protocol = loc.protocol
-  if (loc.auth) opts.auth = loc.auth
-  opts.path = loc.path
-  delete opts.url
-}
 
 function isStream (obj) { return typeof obj.pipe === 'function' }
