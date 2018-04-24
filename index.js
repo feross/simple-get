@@ -45,6 +45,13 @@ function simpleGet (opts, cb) {
       delete opts.headers.host
       res.resume() // Discard response
 
+      // move redirected POST requests to GET (https://tools.ietf.org/html/rfc7231#section-6.4)
+      if ((res.statusCode === 301 || res.statusCode === 302) && opts.method === 'POST') {
+        opts.method = 'GET'
+        delete opts.headers['content-length']
+        delete opts.headers['content-type']
+      }
+
       if (opts.maxRedirects > 0) {
         opts.maxRedirects -= 1
         simpleGet(opts, cb)
