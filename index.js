@@ -21,7 +21,7 @@ function simpleGet (opts, cb) {
     else Object.assign(opts, { hostname, port, protocol, auth, path }) // Absolute redirect
   }
 
-  const headers = {'accept-encoding': 'gzip, deflate'}
+  const headers = { 'accept-encoding': 'gzip, deflate' }
   if (opts.headers) Object.keys(opts.headers).forEach(k => (headers[k.toLowerCase()] = opts.headers[k]))
   opts.headers = headers
 
@@ -55,7 +55,7 @@ function simpleGet (opts, cb) {
       }
 
       if (opts.maxRedirects-- === 0) return cb(new Error('too many redirects'))
-      return simpleGet(opts, cb)
+      else return simpleGet(opts, cb)
     }
 
     const tryUnzip = typeof decompressResponse === 'function' && opts.method !== 'HEAD'
