@@ -11,8 +11,7 @@ const url = require('url')
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
 function simpleGet (opts, cb) {
-  opts = typeof opts === 'string' ? { url: opts } : Object.assign({}, opts)
-  opts = Object.assign({ maxRedirects: 10 }, opts)
+  opts = Object.assign({ maxRedirects: 10 }, typeof opts === 'string' ? { url: opts } : opts)
   cb = once(cb)
 
   if (opts.url) {
