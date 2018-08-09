@@ -32,13 +32,14 @@ function simpleGet (opts, cb) {
     body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
     opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   }
-  delete opts.body; delete opts.form
 
   if (body) {
     if (!opts.method) opts.method = 'POST'
     if (!isStream(body)) opts.headers['content-length'] = Buffer.byteLength(body)
-    if (opts.json) opts.headers['content-type'] = 'application/json'
+    if (opts.json && !opts.form) opts.headers['content-type'] = 'application/json'
   }
+  delete opts.body; delete opts.form
+
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.method) opts.method = opts.method.toUpperCase()
 
