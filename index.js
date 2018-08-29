@@ -93,7 +93,7 @@ simpleGet.concat = (opts, cb) => {
 
 ;['get', 'post', 'put', 'patch', 'head', 'delete'].forEach(method => {
   simpleGet[method] = (opts, cb) => {
-    if (typeof opts === 'string') opts = {url: opts}
+    if (typeof opts === 'string') opts = { url: opts }
     return simpleGet(Object.assign({ method: method.toUpperCase() }, opts), cb)
   }
 })
