@@ -45,7 +45,7 @@ function simpleGet (opts, cb) {
 
   const protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   const req = protocol.request(opts, res => {
-    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+    if (opts.followRedirects !== false && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
       opts.url = res.headers.location // Follow 3xx redirects
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response

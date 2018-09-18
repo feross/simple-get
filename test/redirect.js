@@ -59,6 +59,31 @@ test('do not follow redirects', function (t) {
   })
 })
 
+test('do not follow redirects and do not error', function (t) {
+  t.plan(4)
+
+  var server = http.createServer(function (req, res) {
+    t.equal(req.url, '/0', 'visited /0')
+
+    res.statusCode = 301
+    res.setHeader('Location', '/1')
+    res.end()
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    get({
+      url: 'http://localhost:' + port + '/0',
+      followRedirects: false
+    }, function (err, res) {
+      t.ok(!err, 'got no error')
+      t.equal(res.statusCode, 301, 'status code 301')
+      t.equal(res.headers.location, '/1', 'redirect location')
+      server.close()
+    })
+  })
+})
+
 test('follow redirects (11 is too many)', function (t) {
   t.plan(12)
 

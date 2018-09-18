@@ -241,6 +241,19 @@ const opts = {
 get.post(opts, function (err, res) {})
 ```
 
+### Specifically disallowing redirects
+
+```js
+const get = require('simple-get')
+
+const opts = {
+  url: 'http://example.com/will-redirect-elsewhere',
+  followRedirects: false
+}
+// res.statusCode will be 301, no error thrown
+get(opts, function (err, res) {})
+```
+
 ### OAuth
 
 You can use the [`oauth-1.0a`](https://github.com/ddo/oauth-1.0a) module to create
