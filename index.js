@@ -6,7 +6,7 @@ const http = require('http')
 const https = require('https')
 const once = require('once')
 const querystring = require('querystring')
-const url = require('url')
+const url = require('url') // eslint-ignore-line
 
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
