@@ -6,7 +6,7 @@ const http = require('http')
 const https = require('https')
 const once = require('once')
 const querystring = require('querystring')
-const url = require('url') // eslint-ignore-line
+const url = require('url')
 
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
@@ -15,7 +15,7 @@ function simpleGet (opts, cb) {
   cb = once(cb)
 
   if (opts.url) {
-    const { hostname, port, protocol, auth, path } = url.parse(opts.url)
+    const { hostname, port, protocol, auth, path } = url.parse(opts.url) // eslint-disable-line node/no-deprecated-api
     delete opts.url
     if (!hostname && !port && !protocol && !auth) opts.path = path // Relative redirect
     else Object.assign(opts, { hostname, port, protocol, auth, path }) // Absolute redirect
