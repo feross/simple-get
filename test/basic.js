@@ -58,7 +58,7 @@ test('simple get json', function (t) {
 
   var server = http.createServer(function (req, res) {
     t.equal(req.url, '/path')
-    t.equal(req.headers['accept'], 'application/json')
+    t.equal(req.headers.accept, 'application/json')
     res.statusCode = 200
     res.end('{"message":"response"}')
   })
