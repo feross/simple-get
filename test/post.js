@@ -146,9 +146,8 @@ test('post (json body)', function (t) {
 test('post (form, object)', function (t) {
   t.plan(5)
 
-  var formData = {
-    foo: 'bar'
-  }
+  var formData = Object.create(null)
+  formData.foo = 'bar'
 
   var server = http.createServer(function (req, res) {
     t.equal(req.method, 'POST')
