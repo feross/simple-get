@@ -22,7 +22,7 @@
     "self-signed-https": "^1.0.5",
     "standard": "*",
     "string-to-stream": "^3.0.0",
-    "tape": "^4.0.0"
+    "tape": "^5.0.0"
   },
   "homepage": "https://github.com/feross/simple-get",
   "keywords": [
