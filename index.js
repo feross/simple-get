@@ -1,3 +1,4 @@
+/*! simple-get. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 module.exports = simpleGet
 
 const concat = require('simple-concat')
