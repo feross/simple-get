@@ -1,14 +1,14 @@
-var concat = require('simple-concat')
-var get = require('../')
-var http = require('http')
-var selfSignedHttps = require('self-signed-https')
-var test = require('tape')
+const concat = require('simple-concat')
+const get = require('../')
+const http = require('http')
+const selfSignedHttps = require('self-signed-https')
+const test = require('tape')
 
 test('follow redirects (up to 10)', function (t) {
   t.plan(15)
 
-  var num = 0
-  var server = http.createServer(function (req, res) {
+  let num = 0
+  const server = http.createServer(function (req, res) {
     t.equal(req.url, '/' + num, 'visited /' + num)
 
     if (num < 10) {
@@ -23,7 +23,7 @@ test('follow redirects (up to 10)', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get('http://localhost:' + port + '/0', function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
@@ -39,7 +39,7 @@ test('follow redirects (up to 10)', function (t) {
 test('do not follow redirects', function (t) {
   t.plan(2)
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     t.equal(req.url, '/0', 'visited /0')
 
     res.statusCode = 301
@@ -48,7 +48,7 @@ test('do not follow redirects', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get({
       url: 'http://localhost:' + port + '/0',
       maxRedirects: 0
@@ -62,7 +62,7 @@ test('do not follow redirects', function (t) {
 test('do not follow redirects and do not error', function (t) {
   t.plan(4)
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     t.equal(req.url, '/0', 'visited /0')
 
     res.statusCode = 301
@@ -71,7 +71,7 @@ test('do not follow redirects and do not error', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get({
       url: 'http://localhost:' + port + '/0',
       followRedirects: false
@@ -87,8 +87,8 @@ test('do not follow redirects and do not error', function (t) {
 test('follow redirects (11 is too many)', function (t) {
   t.plan(12)
 
-  var num = 0
-  var server = http.createServer(function (req, res) {
+  let num = 0
+  const server = http.createServer(function (req, res) {
     t.equal(req.url, '/' + num, 'visited /' + num)
 
     if (num < 11) {
@@ -102,7 +102,7 @@ test('follow redirects (11 is too many)', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get('http://localhost:' + port + '/0', function (err) {
       t.ok(err instanceof Error, 'got error')
       server.close()
@@ -113,17 +113,17 @@ test('follow redirects (11 is too many)', function (t) {
 test('redirect https to http', function (t) {
   t.plan(6)
 
-  var httpPort = null
-  var httpsPort = null
+  let httpPort = null
+  let httpsPort = null
 
-  var httpsServer = selfSignedHttps(function (req, res) {
+  const httpsServer = selfSignedHttps(function (req, res) {
     t.equal(req.url, '/path1')
     res.statusCode = 301
     res.setHeader('Location', 'http://localhost:' + httpPort + '/path2')
     res.end()
   })
 
-  var httpServer = http.createServer(function (req, res) {
+  const httpServer = http.createServer(function (req, res) {
     t.equal(req.url, '/path2')
     res.statusCode = 200
     res.end('response')
@@ -153,17 +153,17 @@ test('redirect https to http', function (t) {
 test('redirect http to https', function (t) {
   t.plan(6)
 
-  var httpsPort = null
-  var httpPort = null
+  let httpsPort = null
+  let httpPort = null
 
-  var httpServer = http.createServer(function (req, res) {
+  const httpServer = http.createServer(function (req, res) {
     t.equal(req.url, '/path1')
     res.statusCode = 301
     res.setHeader('Location', 'https://localhost:' + httpsPort + '/path2')
     res.end()
   })
 
-  var httpsServer = selfSignedHttps(function (req, res) {
+  const httpsServer = selfSignedHttps(function (req, res) {
     t.equal(req.url, '/path2')
     res.statusCode = 200
     res.end('response')
@@ -193,10 +193,10 @@ test('redirect http to https', function (t) {
 test('redirect to different host/port', function (t) {
   t.plan(7)
 
-  var port1 = null
-  var port2 = null
+  let port1 = null
+  let port2 = null
 
-  var server1 = http.createServer(function (req, res) {
+  const server1 = http.createServer(function (req, res) {
     t.equal(req.url, '/path1')
     res.statusCode = 301
     // Redirect from localhost:port1 to 127.0.0.1:port2 (different host and port!)
@@ -204,7 +204,7 @@ test('redirect to different host/port', function (t) {
     res.end()
   })
 
-  var server2 = http.createServer(function (req, res) {
+  const server2 = http.createServer(function (req, res) {
     t.equal(req.url, '/path2')
     // Confirm that request was made with new host and port (127.0.0.1:port2)
     t.equal(req.headers.host, `127.0.0.1:${port2}`)
@@ -234,10 +234,10 @@ test('redirect to different host/port', function (t) {
 test('redirect should clear explicitly specified `host` header', function (t) {
   t.plan(8)
 
-  var port1 = null
-  var port2 = null
+  let port1 = null
+  let port2 = null
 
-  var server1 = http.createServer(function (req, res) {
+  const server1 = http.createServer(function (req, res) {
     t.equal(req.url, '/path1')
     t.equal(req.headers.host, `localhost:${port1}`)
     res.statusCode = 301
@@ -246,7 +246,7 @@ test('redirect should clear explicitly specified `host` header', function (t) {
     res.end()
   })
 
-  var server2 = http.createServer(function (req, res) {
+  const server2 = http.createServer(function (req, res) {
     t.equal(req.url, '/path2')
     // Confirm that request was made with new host and port (127.0.0.1:port2), i.e.
     // that the explicitly specified `Host` header was cleared upon redirect.
@@ -282,10 +282,10 @@ test('redirect should clear explicitly specified `host` header', function (t) {
 test('redirect should clear explicitly specified `Host` (note uppercase) header', function (t) {
   t.plan(8)
 
-  var port1 = null
-  var port2 = null
+  let port1 = null
+  let port2 = null
 
-  var server1 = http.createServer(function (req, res) {
+  const server1 = http.createServer(function (req, res) {
     t.equal(req.url, '/path1')
     t.equal(req.headers.host, `localhost:${port1}`)
     res.statusCode = 301
@@ -294,7 +294,7 @@ test('redirect should clear explicitly specified `Host` (note uppercase) header'
     res.end()
   })
 
-  var server2 = http.createServer(function (req, res) {
+  const server2 = http.createServer(function (req, res) {
     t.equal(req.url, '/path2')
     // Confirm that request was made with new host and port (127.0.0.1:port2), i.e.
     // that the explicitly specified `Host` header was cleared upon redirect.

@@ -1,20 +1,20 @@
-var concat = require('simple-concat')
-var get = require('../')
-var http = require('http')
-var selfSignedHttps = require('self-signed-https')
-var test = require('tape')
+const concat = require('simple-concat')
+const get = require('../')
+const http = require('http')
+const selfSignedHttps = require('self-signed-https')
+const test = require('tape')
 
 test('simple get', function (t) {
   t.plan(5)
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     t.equal(req.url, '/path')
     res.statusCode = 200
     res.end('response')
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get('http://localhost:' + port + '/path', function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
@@ -30,14 +30,14 @@ test('simple get', function (t) {
 test('https', function (t) {
   t.plan(5)
 
-  var server = selfSignedHttps(function (req, res) {
+  const server = selfSignedHttps(function (req, res) {
     t.equal(req.url, '/path')
     res.statusCode = 200
     res.end('response')
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get({
       url: 'https://localhost:' + port + '/path',
       rejectUnauthorized: false
@@ -56,7 +56,7 @@ test('https', function (t) {
 test('simple get json', function (t) {
   t.plan(6)
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     t.equal(req.url, '/path')
     t.equal(req.headers.accept, 'application/json')
     res.statusCode = 200
@@ -64,8 +64,8 @@ test('simple get json', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
-    var opts = {
+    const port = server.address().port
+    const opts = {
       url: 'http://localhost:' + port + '/path',
       json: true
     }
@@ -84,7 +84,7 @@ test('simple get json', function (t) {
 test('HEAD request', function (t) {
   t.plan(3)
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     t.equal(req.method, 'HEAD')
     // Taken from real-world response from HEAD request to GitHub.com
     res.setHeader('content-type', 'text/html; charset=utf-8')
@@ -95,8 +95,8 @@ test('HEAD request', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
-    var opts = {
+    const port = server.address().port
+    const opts = {
       method: 'HEAD',
       url: 'http://localhost:' + port
     }
@@ -111,7 +111,7 @@ test('HEAD request', function (t) {
 test('timeout option', function (t) {
   t.plan(2)
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     t.equal(req.url, '/path')
     setTimeout(function () {
       // response should not be sent - should timeout before it's sent
@@ -120,7 +120,7 @@ test('timeout option', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get({
       url: 'http://localhost:' + port + '/path',
       timeout: 1000
@@ -134,9 +134,9 @@ test('timeout option', function (t) {
 test('rewrite POST redirects to GET', function (t) {
   t.plan(8)
 
-  var redirected = false
+  let redirected = false
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     if (redirected) {
       t.equal(req.url, '/getthis')
       t.equal(req.method, 'GET')
@@ -153,8 +153,8 @@ test('rewrite POST redirects to GET', function (t) {
   })
 
   server.listen(0, function () {
-    var port = server.address().port
-    var opts = {
+    const port = server.address().port
+    const opts = {
       method: 'POST',
       body: '123',
       url: 'http://localhost:' + port

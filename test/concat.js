@@ -1,19 +1,19 @@
-var get = require('../')
-var http = require('http')
-var str = require('string-to-stream')
-var test = require('tape')
+const get = require('../')
+const http = require('http')
+const str = require('string-to-stream')
+const test = require('tape')
 
 test('get.concat (post, stream body, and json option)', function (t) {
   t.plan(4)
 
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     res.statusCode = 200
     req.pipe(res)
   })
 
   server.listen(0, function () {
-    var port = server.address().port
-    var opts = {
+    const port = server.address().port
+    const opts = {
       url: 'http://localhost:' + port,
       body: str('{"a": "b"}'),
       method: 'POST',
@@ -31,13 +31,13 @@ test('get.concat (post, stream body, and json option)', function (t) {
 
 test('get.concat', function (t) {
   t.plan(4)
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     res.statusCode = 200
     res.end('blah blah blah')
   })
 
   server.listen(0, function () {
-    var port = server.address().port
+    const port = server.address().port
     get.concat('http://localhost:' + port, function (err, res, data) {
       t.error(err)
       t.equal(res.statusCode, 200)
@@ -50,14 +50,14 @@ test('get.concat', function (t) {
 
 test('get.concat json', function (t) {
   t.plan(3)
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     res.statusCode = 200
     res.end('{"message":"response"}')
   })
 
   server.listen(0, function () {
-    var port = server.address().port
-    var opts = {
+    const port = server.address().port
+    const opts = {
       url: 'http://localhost:' + port + '/path',
       json: true
     }
@@ -72,14 +72,14 @@ test('get.concat json', function (t) {
 
 test('get.concat json error', function (t) {
   t.plan(1)
-  var server = http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     res.statusCode = 500
     res.end('not json')
   })
 
   server.listen(0, function () {
-    var port = server.address().port
-    var opts = {
+    const port = server.address().port
+    const opts = {
       url: 'http://localhost:' + port + '/path',
       json: true
     }
