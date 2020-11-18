@@ -91,6 +91,7 @@ get({
 
   // simple-get accepts all options that node.js `http` accepts
   // See: http://nodejs.org/api/http.html#http_http_request_options_callback
+  // Special option `noDecompress` allows to skip response body decompression.
   headers: {
     'user-agent': 'my cool app'
   }
