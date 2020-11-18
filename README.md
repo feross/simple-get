@@ -254,6 +254,20 @@ const opts = {
 get(opts, function (err, res) {})
 ```
 
+### Basic Auth
+
+```js
+const user = 'someuser'
+const pass = 'pa$$word'
+const encodedAuth = Buffer.from(`${user}:${pass}`).toString('base64')
+
+get('http://example.com', {
+  headers: {
+    authorization: `Basic ${encodedAuth}`
+  }
+})
+```
+
 ### OAuth
 
 You can use the [`oauth-1.0a`](https://github.com/ddo/oauth-1.0a) module to create
