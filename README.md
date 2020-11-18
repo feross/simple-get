@@ -62,6 +62,21 @@ get.concat('http://example.com', function (err, res, data) {
 })
 ```
 
+or with async/await
+
+```js
+const get = require('simple-get')
+
+async function run () {
+  const { res, data } = await get.concat('http://example.com')
+  console.log(res.statusCode) // 200
+  console.log(data) // Buffer('this is the server response')
+  })
+}
+
+run().then(({ data } => console.log(data.toString()))
+```
+
 ### POST, PUT, PATCH, HEAD, DELETE support
 
 For `POST`, call `get.post` or use option `{ method: 'POST' }`.

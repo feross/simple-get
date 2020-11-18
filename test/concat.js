@@ -89,3 +89,24 @@ test('get.concat json error', function (t) {
     })
   })
 })
+
+test('get.concat with Promise', function (t) {
+  t.plan(3)
+  var server = http.createServer(function (req, res) {
+    res.statusCode = 200
+    res.end('blah blah blah')
+  })
+
+  server.listen(0, function () {
+    var port = server.address().port
+    get
+      .concat('http://localhost:' + port)
+      .then(({ res, data }) => {
+        t.equal(res.statusCode, 200)
+        t.ok(Buffer.isBuffer(data), '`data` is type buffer')
+        t.equal(data.toString(), 'blah blah blah')
+        server.close()
+      })
+      .catch(t.fail)
+  })
+})
