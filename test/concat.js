@@ -70,8 +70,29 @@ test('get.concat json', function (t) {
   })
 })
 
+test('get.concat response error status', function (t) {
+  t.plan(3)
+  const server = http.createServer(function (req, res) {
+    res.statusCode = 500
+    res.end('fail')
+  })
+
+  server.listen(0, function () {
+    const port = server.address().port
+    const opts = {
+      url: 'http://localhost:' + port + '/path'
+    }
+    get.concat(opts, function (err, res, data) {
+      t.equal(err, null)
+      t.equal(res.statusCode, 500)
+      t.equal(data.toString(), 'fail')
+      server.close()
+    })
+  })
+})
+
 test('get.concat json error', function (t) {
-  t.plan(1)
+  t.plan(3)
   const server = http.createServer(function (req, res) {
     res.statusCode = 500
     res.end('not json')
@@ -85,6 +106,8 @@ test('get.concat json error', function (t) {
     }
     get.concat(opts, function (err, res, data) {
       t.ok(err instanceof Error)
+      t.equal(res.statusCode, 500)
+      t.equal(data.toString(), 'not json')
       server.close()
     })
   })
