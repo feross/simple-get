@@ -7,6 +7,7 @@
     "email": "feross@feross.org",
     "url": "https://feross.org"
   },
+  "type": "module",
   "browser": {
     "decompress-response": false
   },
