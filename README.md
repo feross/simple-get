@@ -39,7 +39,7 @@ Note, all these examples also work in the browser with [browserify](http://brows
 Doesn't get easier than this:
 
 ```js
-const get = require('simple-get')
+import get from 'simple-get'
 
 get('http://example.com', function (err, res) {
   if (err) throw err
@@ -53,7 +53,7 @@ get('http://example.com', function (err, res) {
 If you just want the data, and don't want to deal with streams:
 
 ```js
-const get = require('simple-get')
+import get from 'simple-get'
 
 get.concat('http://example.com', function (err, res, data) {
   if (err) throw err
@@ -67,7 +67,7 @@ get.concat('http://example.com', function (err, res, data) {
 For `POST`, call `get.post` or use option `{ method: 'POST' }`.
 
 ```js
-const get = require('simple-get')
+import get from 'simple-get'
 
 const opts = {
   url: 'http://example.com',
@@ -82,7 +82,7 @@ get.post(opts, function (err, res) {
 #### A more complex example:
 
 ```js
-const get = require('simple-get')
+import get from 'simple-get'
 
 get({
   url: 'http://example.com',
@@ -117,7 +117,7 @@ get({
 You can serialize/deserialize request and response with JSON:
 
 ```js
-const get = require('simple-get')
+import get from 'simple-get'
 
 const opts = {
   method: 'POST',
@@ -140,7 +140,7 @@ If the request takes longer than `timeout` to complete, then the entire request
 will fail with an `Error`.
 
 ```js
-const get = require('simple-get')
+import get from 'simple-get'
 
 const opts = {
   url: 'http://example.com',
@@ -156,12 +156,11 @@ It's a good idea to set the `'user-agent'` header so the provider can more easil
 see how their resource is used.
 
 ```js
-const get = require('simple-get')
-const pkg = require('./package.json')
+import get from 'simple-get'
 
 get('http://example.com', {
   headers: {
-    'user-agent': `my-module/${pkg.version} (https://github.com/username/my-module)`
+    'user-agent': `my-module/2.1.6 (https://github.com/username/my-module)`
   }
 })
 ```
@@ -172,8 +171,8 @@ You can use the [`tunnel`](https://github.com/koichik/node-tunnel) module with t
 `agent` option to work with proxies:
 
 ```js
-const get = require('simple-get')
-const tunnel = require('tunnel')
+import get from 'simple-get'
+import tunnel from 'tunnel'
 
 const opts = {
   url: 'http://example.com',
@@ -193,8 +192,8 @@ You can use the [`cookie`](https://github.com/jshttp/cookie) module to include
 cookies in a request:
 
 ```js
-const get = require('simple-get')
-const cookie = require('cookie')
+import get from 'simple-get'
+import cookie from 'cookie'
 
 const opts = {
   url: 'http://example.com',
@@ -212,9 +211,9 @@ You can use the [`form-data`](https://github.com/form-data/form-data) module to
 create POST request with form data:
 
 ```js
-const fs = require('fs')
-const get = require('simple-get')
-const FormData = require('form-data')
+import fs from 'fs'
+import get from 'simple-get'
+import FormData from 'form-data'
 const form = new FormData()
 
 form.append('my_file', fs.createReadStream('/foo/bar.jpg'))
@@ -244,7 +243,7 @@ get.post(opts, function (err, res) {})
 ### Specifically disallowing redirects
 
 ```js
-const get = require('simple-get')
+import get from 'simple-get'
 
 const opts = {
   url: 'http://example.com/will-redirect-elsewhere',
@@ -274,9 +273,9 @@ You can use the [`oauth-1.0a`](https://github.com/ddo/oauth-1.0a) module to crea
 a signed OAuth request:
 
 ```js
-const get = require('simple-get')
-const crypto  = require('crypto')
-const OAuth = require('oauth-1.0a')
+import get from 'simple-get'
+import crypto  from 'crypto'
+import OAuth from 'oauth-1.0a'
 
 const oauth = OAuth({
   consumer: {
@@ -308,8 +307,8 @@ get(opts, function (err, res) {})
 You can use [limiter](https://github.com/jhurliman/node-rate-limiter) to throttle requests. This is useful when calling an API that is rate limited.
 
 ```js
-const simpleGet = require('simple-get')
-const RateLimiter = require('limiter').RateLimiter
+import simpleGet from 'simple-get'
+import {RateLimiter} from 'limiter'
 const limiter = new RateLimiter(1, 'second')
 
 const get = (opts, cb) => limiter.removeTokens(1, () => simpleGet(opts, cb))
