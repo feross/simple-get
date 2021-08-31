@@ -1,14 +1,16 @@
-const concat = require('simple-concat')
-const get = require('../')
-const http = require('http')
-const querystring = require('querystring')
-const str = require('string-to-stream')
-const test = require('tape')
+import { parse } from 'node:querystring'
+import { createServer } from 'node:http'
+import concat from 'simple-concat'
+import str from 'string-to-stream'
+import test from 'tape'
+import get from '../index.js'
+
+const { post, concat: _concat } = get
 
 test('post (text body)', function (t) {
   t.plan(5)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'POST')
     res.statusCode = 200
     req.pipe(res)
@@ -20,7 +22,7 @@ test('post (text body)', function (t) {
       url: 'http://localhost:' + port,
       body: 'this is the body'
     }
-    get.post(opts, function (err, res) {
+    post(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
@@ -35,7 +37,7 @@ test('post (text body)', function (t) {
 test('post (utf-8 text body)', function (t) {
   t.plan(5)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'POST')
     res.statusCode = 200
     req.pipe(res)
@@ -47,7 +49,7 @@ test('post (utf-8 text body)', function (t) {
       url: 'http://localhost:' + port,
       body: 'jedan dva tri četiri'
     }
-    get.post(opts, function (err, res) {
+    post(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
@@ -62,7 +64,7 @@ test('post (utf-8 text body)', function (t) {
 test('post (buffer body)', function (t) {
   t.plan(5)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'POST')
     res.statusCode = 200
     req.pipe(res)
@@ -74,7 +76,7 @@ test('post (buffer body)', function (t) {
       url: 'http://localhost:' + port,
       body: Buffer.from('this is the body')
     }
-    get.post(opts, function (err, res) {
+    post(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
@@ -89,7 +91,7 @@ test('post (buffer body)', function (t) {
 test('post (stream body)', function (t) {
   t.plan(6)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'POST')
     res.statusCode = 200
     t.notOk(req.headers['content-length'])
@@ -102,7 +104,7 @@ test('post (stream body)', function (t) {
       url: 'http://localhost:' + port,
       body: str('this is the body')
     }
-    get.post(opts, function (err, res) {
+    post(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
@@ -117,7 +119,7 @@ test('post (stream body)', function (t) {
 test('post (json body)', function (t) {
   t.plan(5)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'POST')
     t.equal(req.headers['content-type'], 'application/json')
     res.statusCode = 200
@@ -134,7 +136,7 @@ test('post (json body)', function (t) {
       },
       json: true
     }
-    get.concat(opts, function (err, res, data) {
+    _concat(opts, function (err, res, data) {
       t.error(err)
       t.equal(res.statusCode, 200)
       t.equal(data.message, 'this is the body')
@@ -149,7 +151,7 @@ test('post (form, object)', function (t) {
   const formData = Object.create(null)
   formData.foo = 'bar'
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'POST')
     t.equal(req.headers['content-type'], 'application/x-www-form-urlencoded')
     res.statusCode = 200
@@ -163,10 +165,10 @@ test('post (form, object)', function (t) {
       url: 'http://localhost:' + port,
       form: formData
     }
-    get.concat(opts, function (err, res, data) {
+    _concat(opts, function (err, res, data) {
       t.error(err)
       t.equal(res.statusCode, 200)
-      t.deepEqual(querystring.parse(data.toString()), formData)
+      t.deepEqual(parse(data.toString()), formData)
       server.close()
     })
   })
@@ -177,7 +179,7 @@ test('post (form, querystring)', function (t) {
 
   const formData = 'foo=bar'
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'POST')
     t.equal(req.headers['content-type'], 'application/x-www-form-urlencoded')
     res.statusCode = 200
@@ -191,7 +193,7 @@ test('post (form, querystring)', function (t) {
       url: 'http://localhost:' + port,
       form: formData
     }
-    get.concat(opts, function (err, res, data) {
+    _concat(opts, function (err, res, data) {
       t.error(err)
       t.equal(res.statusCode, 200)
       t.equal(data.toString(), formData)

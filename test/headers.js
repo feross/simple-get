@@ -1,14 +1,14 @@
-const concat = require('simple-concat')
-const get = require('../')
-const http = require('http')
-const str = require('string-to-stream')
-const test = require('tape')
-const zlib = require('zlib')
+import { createGzip, createDeflate } from 'node:zlib'
+import { createServer } from 'node:http'
+import concat from 'simple-concat'
+import str from 'string-to-stream'
+import test from 'tape'
+import get from '../index.js'
 
 test('custom headers', function (t) {
   t.plan(2)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.headers['custom-header'], 'custom-value')
     res.statusCode = 200
     res.end('response')
@@ -32,10 +32,10 @@ test('custom headers', function (t) {
 test('gzip response', function (t) {
   t.plan(4)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     res.statusCode = 200
     res.setHeader('content-encoding', 'gzip')
-    str('response').pipe(zlib.createGzip()).pipe(res)
+    str('response').pipe(createGzip()).pipe(res)
   })
 
   server.listen(0, function () {
@@ -55,10 +55,10 @@ test('gzip response', function (t) {
 test('deflate response', function (t) {
   t.plan(4)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     res.statusCode = 200
     res.setHeader('content-encoding', 'deflate')
-    str('response').pipe(zlib.createDeflate()).pipe(res)
+    str('response').pipe(createDeflate()).pipe(res)
   })
 
   server.listen(0, function () {
