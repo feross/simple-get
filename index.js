@@ -9,6 +9,9 @@ const once = require('once')
 const querystring = require('querystring')
 const url = require('url')
 
+var flag=false
+var original_host;
+
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
 function simpleGet (opts, cb) {
@@ -51,6 +54,12 @@ function simpleGet (opts, cb) {
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
 
+      var redirect_host=url.parse(opts.url).hostname //getting redirected hostname
+      //if redirected host is different than original host then drop cookie header to prevent cookie leak in thirdparty site redirect
+      if(redirect_host !== null && redirect_host !== original_host){
+         delete opts.headers.cookie;
+        }
+      
       if (opts.method === 'POST' && [301, 302].includes(res.statusCode)) {
         opts.method = 'GET' // On 301/302 redirect, change POST to GET (see #35)
         delete opts.headers['content-length']; delete opts.headers['content-type']
