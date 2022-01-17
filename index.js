@@ -58,6 +58,7 @@ function simpleGet (opts, cb) {
       //if redirected host is different than original host then drop cookie header to prevent cookie leak in thirdparty site redirect
       if(redirect_host !== null && redirect_host !== original_host){
          delete opts.headers.cookie;
+         delete opts.headers.authorization;
         }
       
       if (opts.method === 'POST' && [301, 302].includes(res.statusCode)) {
