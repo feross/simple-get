@@ -9,9 +9,6 @@ const once = require('once')
 const querystring = require('querystring')
 const url = require('url')
 
-var flag=false
-var original_host;
-
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
 function simpleGet (opts, cb) {
@@ -37,13 +34,8 @@ function simpleGet (opts, cb) {
     opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   }
 
-    //getting original host
-  if (!flag){
-   original_host=opts.hostname
-  //console.log(original_host)
-  flag=true
-  }
-  
+  const ohost = opts.hostname
+
   if (body) {
     if (!opts.method) opts.method = 'POST'
     if (!isStream(body)) opts.headers['content-length'] = Buffer.byteLength(body)
@@ -61,13 +53,13 @@ function simpleGet (opts, cb) {
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
 
-       var redirect_host=url.parse(opts.url).hostname //getting redirected hostname
-      //if redirected host is different than original host then drop cookie header to prevent cookie leak in thirdparty site redirect
-      if(redirect_host !== null && redirect_host !== original_host){
-         delete opts.headers.cookie;
-         delete opts.headers.authorization;
-        }
-      
+      const rhost = url.parse(opts.url).hostname // eslint-disable-line node/no-deprecated-api
+      // if redirected host is different than original host then drop cookie header to prevent cookie leak in thirdparty site redirect
+      if (rhost !== null && rhost !== ohost) {
+        delete opts.headers.cookie
+        delete opts.headers.authorization
+      }
+
       if (opts.method === 'POST' && [301, 302].includes(res.statusCode)) {
         opts.method = 'GET' // On 301/302 redirect, change POST to GET (see #35)
         delete opts.headers['content-length']; delete opts.headers['content-type']
