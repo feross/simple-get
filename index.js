@@ -34,8 +34,6 @@ function simpleGet (opts, cb) {
     opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   }
 
-  const ohost = opts.hostname
-
   if (body) {
     if (!opts.method) opts.method = 'POST'
     if (!isStream(body)) opts.headers['content-length'] = Buffer.byteLength(body)
@@ -46,6 +44,7 @@ function simpleGet (opts, cb) {
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.method) opts.method = opts.method.toUpperCase()
 
+  const originalHost = opts.hostname // hostname before potential redirect
   const protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   const req = protocol.request(opts, res => {
     if (opts.followRedirects !== false && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
@@ -53,9 +52,9 @@ function simpleGet (opts, cb) {
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
 
-      const rhost = url.parse(opts.url).hostname // eslint-disable-line node/no-deprecated-api
-      // if redirected host is different than original host then drop cookie header to prevent cookie leak in thirdparty site redirect
-      if (rhost !== null && rhost !== ohost) {
+      const redirectHost = url.parse(opts.url).hostname // eslint-disable-line node/no-deprecated-api
+      // If redirected host is different than original host, drop headers to prevent cookie leak (#73)
+      if (redirectHost !== null && redirectHost !== originalHost) {
         delete opts.headers.cookie
         delete opts.headers.authorization
       }
