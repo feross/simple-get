@@ -52,12 +52,20 @@ function simpleGet (opts, cb) {
   if (opts.json) opts.headers.accept = 'application/json'
   if (!opts.headers['accept-encoding']) opts.headers['accept-encoding'] = 'gzip, deflate' // Prefer gzip
 
+  var originalHost = opts.hostname // hostname before potential redirect
   var protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   var req = protocol.request(opts, function (res) {
     if (res.statusCode >= 300 && res.statusCode < 400 && 'location' in res.headers) {
       opts.url = res.headers.location // Follow 3xx redirects
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
+
+      var redirectHost = url.parse(opts.url).hostname // eslint-disable-line node/no-deprecated-api
+      // If redirected host is different than original host, drop headers to prevent cookie leak (#73)
+      if (redirectHost !== null && redirectHost !== originalHost) {
+        delete opts.headers.cookie
+        delete opts.headers.authorization
+      }
 
       if ((res.statusCode === 301 || res.statusCode === 302) && opts.method === 'POST') {
         opts.method = 'GET' // On 301/302 redirect, change POST to GET (see #35)
