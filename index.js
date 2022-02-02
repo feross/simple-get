@@ -43,12 +43,20 @@ function simpleGet (opts, cb) {
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.method) opts.method = opts.method.toUpperCase()
 
+  const originalHost = opts.hostname // hostname before potential redirect
   const protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   const req = protocol.request(opts, res => {
     if (opts.followRedirects !== false && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
       opts.url = res.headers.location // Follow 3xx redirects
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
+
+      const redirectHost = url.parse(opts.url).hostname // eslint-disable-line node/no-deprecated-api
+      // If redirected host is different than original host, drop headers to prevent cookie leak (#73)
+      if (redirectHost !== null && redirectHost !== originalHost) {
+        delete opts.headers.cookie
+        delete opts.headers.authorization
+      }
 
       if (opts.method === 'POST' && [301, 302].includes(res.statusCode)) {
         opts.method = 'GET' // On 301/302 redirect, change POST to GET (see #35)
