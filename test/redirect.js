@@ -326,3 +326,35 @@ test('redirect should clear explicitly specified `Host` (note uppercase) header'
     })
   })
 })
+
+test('follow redirects without "url" option', function (t) {
+  t.plan(15)
+
+  let num = 0
+  const server = http.createServer(function (req, res) {
+    t.equal(req.url, '/' + num, 'visited /' + num)
+
+    if (num < 10) {
+      num += 1
+      res.statusCode = 301
+      res.setHeader('Location', '/' + num)
+      res.end()
+    } else {
+      res.statusCode = 200
+      res.end('response')
+    }
+  })
+
+  server.listen(0, function () {
+    const port = server.address().port
+    get({ hostname: 'localhost', port, path: '/0' }, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      concat(res, function (err, data) {
+        t.error(err)
+        t.equal(data.toString(), 'response')
+        server.close()
+      })
+    })
+  })
+})
