@@ -24,6 +24,9 @@
     "string-to-stream": "^3.0.0",
     "tape": "^5.0.0"
   },
+  "engines": {
+    "node": ">=10"
+  },
   "homepage": "https://github.com/feross/simple-get",
   "keywords": [
     "request",
