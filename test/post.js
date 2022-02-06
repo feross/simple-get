@@ -17,7 +17,7 @@ test('post (text body)', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       body: 'this is the body'
     }
     get.post(opts, function (err, res) {
@@ -44,7 +44,7 @@ test('post (utf-8 text body)', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       body: 'jedan dva tri četiri'
     }
     get.post(opts, function (err, res) {
@@ -71,7 +71,7 @@ test('post (buffer body)', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       body: Buffer.from('this is the body')
     }
     get.post(opts, function (err, res) {
@@ -99,7 +99,7 @@ test('post (stream body)', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       body: str('this is the body')
     }
     get.post(opts, function (err, res) {
@@ -128,7 +128,7 @@ test('post (json body)', function (t) {
     const port = server.address().port
     const opts = {
       method: 'POST',
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       body: {
         message: 'this is the body'
       },
@@ -160,7 +160,7 @@ test('post (form, object)', function (t) {
     const port = server.address().port
     const opts = {
       method: 'POST',
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       form: formData
     }
     get.concat(opts, function (err, res, data) {
@@ -188,7 +188,7 @@ test('post (form, querystring)', function (t) {
     const port = server.address().port
     const opts = {
       method: 'POST',
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       form: formData
     }
     get.concat(opts, function (err, res, data) {

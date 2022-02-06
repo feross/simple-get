@@ -14,7 +14,7 @@ test('get.concat (post, stream body, and json option)', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       body: str('{"a": "b"}'),
       method: 'POST',
       json: true
@@ -58,7 +58,7 @@ test('get.concat json', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port + '/path',
+      href: 'http://localhost:' + port + '/path',
       json: true
     }
     get.concat(opts, function (err, res, data) {
@@ -80,7 +80,7 @@ test('get.concat json error', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port + '/path',
+      href: 'http://localhost:' + port + '/path',
       json: true
     }
     get.concat(opts, function (err, res, data) {

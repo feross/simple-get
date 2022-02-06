@@ -39,7 +39,7 @@ test('https', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     get({
-      url: 'https://localhost:' + port + '/path',
+      href: 'https://localhost:' + port + '/path',
       rejectUnauthorized: false
     }, function (err, res) {
       t.error(err)
@@ -66,7 +66,7 @@ test('simple get json', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     const opts = {
-      url: 'http://localhost:' + port + '/path',
+      href: 'http://localhost:' + port + '/path',
       json: true
     }
     get(opts, function (err, res) {
@@ -98,7 +98,7 @@ test('HEAD request', function (t) {
     const port = server.address().port
     const opts = {
       method: 'HEAD',
-      url: 'http://localhost:' + port
+      href: 'http://localhost:' + port
     }
     get.head(opts, function (err, res) {
       t.error(err)
@@ -122,7 +122,7 @@ test('timeout option', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     get({
-      url: 'http://localhost:' + port + '/path',
+      href: 'http://localhost:' + port + '/path',
       timeout: 1000
     }, function (err, res) {
       t.ok(err instanceof Error)
@@ -157,7 +157,7 @@ test('rewrite POST redirects to GET', function (t) {
     const opts = {
       method: 'POST',
       body: '123',
-      url: 'http://localhost:' + port
+      href: 'http://localhost:' + port
     }
     get(opts, function (err, res) {
       t.error(err)
@@ -182,7 +182,7 @@ test('simple get hostname + url', function (t) {
 
   server.listen(0, function () {
     const port = server.address().port
-    get({ host: 'localhost', port, url: '/path' }, function (err, res) {
+    get({ host: 'localhost', port, href: '/path' }, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {

@@ -70,7 +70,7 @@ For `POST`, call `get.post` or use option `{ method: 'POST' }`.
 const get = require('simple-get')
 
 const opts = {
-  url: 'http://example.com',
+  href: 'http://example.com',
   body: 'this is the POST body'
 }
 get.post(opts, function (err, res) {
@@ -85,7 +85,7 @@ get.post(opts, function (err, res) {
 const get = require('simple-get')
 
 get({
-  url: 'http://example.com',
+  href: 'http://example.com',
   method: 'POST',
   body: 'this is the POST body',
 
@@ -121,7 +121,7 @@ const get = require('simple-get')
 
 const opts = {
   method: 'POST',
-  url: 'http://example.com',
+  href: 'http://example.com',
   body: {
     key: 'value'
   },
@@ -143,7 +143,7 @@ will fail with an `Error`.
 const get = require('simple-get')
 
 const opts = {
-  url: 'http://example.com',
+  href: 'http://example.com',
   timeout: 2000 // 2 second timeout
 }
 
@@ -176,7 +176,7 @@ const get = require('simple-get')
 const tunnel = require('tunnel')
 
 const opts = {
-  url: 'http://example.com',
+  href: 'http://example.com',
   agent: tunnel.httpOverHttp({
     proxy: {
       host: 'localhost'
@@ -197,7 +197,7 @@ const get = require('simple-get')
 const cookie = require('cookie')
 
 const opts = {
-  url: 'http://example.com',
+  href: 'http://example.com',
   headers: {
     cookie: cookie.serialize('foo', 'bar')
   }
@@ -220,7 +220,7 @@ const form = new FormData()
 form.append('my_file', fs.createReadStream('/foo/bar.jpg'))
 
 const opts = {
-  url: 'http://example.com',
+  href: 'http://example.com',
   body: form
 }
 
@@ -233,7 +233,7 @@ get.post(opts, function (err, res) {})
 const get = require('simple-get')
 
 const opts = {
-  url: 'http://example.com',
+  href: 'http://example.com',
   form: {
     key: 'value'
   }
@@ -247,7 +247,7 @@ get.post(opts, function (err, res) {})
 const get = require('simple-get')
 
 const opts = {
-  url: 'http://example.com/will-redirect-elsewhere',
+  href: 'http://example.com/will-redirect-elsewhere',
   followRedirects: false
 }
 // res.statusCode will be 301, no error thrown
@@ -295,7 +295,7 @@ const token = {
 const url = 'https://api.twitter.com/1.1/statuses/home_timeline.json'
 
 const opts = {
-  url: url,
+  href: url,
   headers: oauth.toHeader(oauth.authorize({url, method: 'GET'}, token)),
   json: true
 }
@@ -316,7 +316,7 @@ const get = (opts, cb) => limiter.removeTokens(1, () => simpleGet(opts, cb))
 get.concat = (opts, cb) => limiter.removeTokens(1, () => simpleGet.concat(opts, cb))
 
 var opts = {
-  url: 'http://example.com'
+  href: 'http://example.com'
 }
 
 get.concat(opts, processResult)

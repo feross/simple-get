@@ -17,7 +17,7 @@ test('custom headers', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     get({
-      url: 'http://localhost:' + port,
+      href: 'http://localhost:' + port,
       headers: {
         'custom-header': 'custom-value'
       }
