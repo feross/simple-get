@@ -10,16 +10,116 @@ const querystring = require('querystring')
 
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
+// const StringPrototypeStartsWith = String.prototype.startsWith
+// const StringPrototypeSlice = String.prototype.slice
+
+// Should match behaviour in in Node.js internals:
+// https://github.com/nodejs/node/blob/30bdee20ee3a24fa12958c7fad51d9b174c765ad/lib/internal/url.js#L1395-L1418
+// function setOptionsFromUrl (options, url) {
+//   delete options.host
+//   delete options.query
+
+//   options.protocol = url.protocol
+//   options.hostname = (typeof url.hostname === 'string' && StringPrototypeStartsWith.call(url.hostname, '[')) ? StringPrototypeSlice.call(url.hostname, 1, -1) : url.hostname
+//   options.hash = url.hash
+//   options.search = url.search
+//   options.pathname = url.pathname
+//   options.path = `${url.pathname || ''}${url.search || ''}`
+//   options.href = url.href
+
+//   if (url.port !== '') {
+//     options.port = Number(url.port)
+//   } else {
+//     delete options.port
+//   }
+
+//   if (url.username || url.password) {
+//     options.auth = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
+//   } else {
+//     delete options.auth
+//   }
+// }
+
+function createUrlFromOptions (opts) {
+  const url = new URL(opts.url || '', 'http://localhost')
+
+  if (opts.auth) {
+    const colon = opts.auth.indexOf(':')
+
+    if (colon === -1) {
+      url.username = opts.auth
+    } else {
+      url.username = opts.auth.slice(0, colon)
+      url.password = opts.auth.slice(colon + 1)
+    }
+  }
+
+  if (opts.hash) {
+    url.hash = opts.hash
+  }
+
+  if (opts.hostname) {
+    url.hostname = opts.hostname
+  } else if (opts.host) {
+    url.hostname = opts.host
+  }
+
+  if (opts.path) {
+    const question = opts.path.indexOf('?')
+
+    if (question === -1) {
+      url.pathname = opts.path
+    } else {
+      url.pathname = opts.path.slice(0, question)
+      url.search = opts.path.slice(question)
+    }
+  }
+
+  if (opts.pathname) {
+    url.pathname = opts.pathname
+  }
+
+  if (opts.port) {
+    url.port = opts.port
+  }
+
+  if (opts.protocol) {
+    url.protocol = opts.protocol
+  }
+
+  if (opts.query) {
+    if (typeof opts.query === 'object') {
+      url.searchParams = new URLSearchParams(opts.query)
+    } else {
+      url.search = `?${opts.query}`
+    }
+  }
+
+  if (opts.search) {
+    url.search = opts.search
+  }
+
+  return url
+}
+
 function simpleGet (opts, cb) {
   opts = Object.assign({ maxRedirects: 10 }, typeof opts === 'string' ? { url: opts } : opts)
   cb = once(cb)
 
-  if (opts.url) {
-    const { hostname, port, protocol, username, password, pathname, href } = new URL(opts.url)
-    if (username || password) opts.auth = `${username}:${password}`
-    delete opts.url
-    Object.assign(opts, { hostname, port, protocol, path: pathname, href })
-  }
+  const foo = createUrlFromOptions(opts)
+  // setOptionsFromUrl(opts, foo)
+  delete opts.auth
+  delete opts.hash
+  delete opts.host
+  delete opts.hostname
+  delete opts.href
+  delete opts.path
+  delete opts.pathname
+  delete opts.port
+  delete opts.protocol
+  delete opts.query
+  delete opts.search
+  delete opts.url
 
   const headers = { 'accept-encoding': 'gzip, deflate' }
   if (opts.headers) Object.keys(opts.headers).forEach(k => (headers[k.toLowerCase()] = opts.headers[k]))
@@ -43,16 +143,20 @@ function simpleGet (opts, cb) {
   if (opts.json) opts.headers.accept = 'application/json'
   if (opts.method) opts.method = opts.method.toUpperCase()
 
-  const originalHost = opts.hostname // hostname before potential redirect
-  const protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
-  const req = protocol.request(opts, res => {
+  const originalHost = foo.hostname // hostname before potential redirect
+  const protocol = foo.protocol === 'https:' ? https : http // Support http/https urls
+  const req = protocol.request(foo, opts, res => {
     if (opts.followRedirects !== false && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-      opts.url = new URL(res.headers.location, opts.href) // Follow 3xx redirects
+      const target = new URL(res.headers.location, foo) // Follow 3xx redirects
+      opts.url = target.href
+
+      // setOptionsFromUrl(opts, target)
+
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
 
       // If redirected host is different than original host, drop headers to prevent cookie leak (#73)
-      if (opts.url.hostname !== originalHost) {
+      if (target.hostname !== originalHost) {
         delete opts.headers.cookie
         delete opts.headers.authorization
       }
