@@ -170,3 +170,26 @@ test('rewrite POST redirects to GET', function (t) {
     })
   })
 })
+
+test('simple get hostname + url', function (t) {
+  t.plan(5)
+
+  const server = http.createServer(function (req, res) {
+    t.equal(req.url, '/path')
+    res.statusCode = 200
+    res.end('response')
+  })
+
+  server.listen(0, function () {
+    const port = server.address().port
+    get({ host: 'localhost', port, url: '/path' }, function (err, res) {
+      t.error(err)
+      t.equal(res.statusCode, 200)
+      concat(res, function (err, data) {
+        t.error(err)
+        t.equal(data.toString(), 'response')
+        server.close()
+      })
+    })
+  })
+})
