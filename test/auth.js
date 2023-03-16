@@ -37,7 +37,7 @@ test('basic auth + host', function (t) {
 
   server.listen(0, function () {
     const port = server.address().port
-    get({ auth: 'foo:bar', host: 'localhost', port }, function (err, res) {
+    get({ username: 'foo', password: 'bar', host: 'localhost:' + port }, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
@@ -60,7 +60,7 @@ test('basic auth + hostname', function (t) {
 
   server.listen(0, function () {
     const port = server.address().port
-    get({ auth: 'foo:bar', hostname: 'localhost', port }, function (err, res) {
+    get({ username: 'foo', password: 'bar', hostname: 'localhost', port }, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {

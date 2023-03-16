@@ -50,7 +50,7 @@ test('do not follow redirects', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     get({
-      url: 'http://localhost:' + port + '/0',
+      href: 'http://localhost:' + port + '/0',
       maxRedirects: 0
     }, function (err) {
       t.ok(err instanceof Error, 'got error')
@@ -73,7 +73,7 @@ test('do not follow redirects and do not error', function (t) {
   server.listen(0, function () {
     const port = server.address().port
     get({
-      url: 'http://localhost:' + port + '/0',
+      href: 'http://localhost:' + port + '/0',
       followRedirects: false
     }, function (err, res) {
       t.ok(!err, 'got no error')
@@ -134,7 +134,7 @@ test('redirect https to http', function (t) {
     httpServer.listen(0, function () {
       httpPort = httpServer.address().port
       get({
-        url: 'https://localhost:' + httpsPort + '/path1',
+        href: 'https://localhost:' + httpsPort + '/path1',
         rejectUnauthorized: false
       }, function (err, res) {
         t.error(err)
@@ -174,7 +174,7 @@ test('redirect http to https', function (t) {
     httpsServer.listen(0, function () {
       httpsPort = httpsServer.address().port
       get({
-        url: 'http://localhost:' + httpPort + '/path1',
+        href: 'http://localhost:' + httpPort + '/path1',
         rejectUnauthorized: false
       }, function (err, res) {
         t.error(err)
@@ -260,7 +260,7 @@ test('redirect should clear explicitly specified `host` header', function (t) {
     server2.listen(0, function () {
       port2 = server2.address().port
       get({
-        url: `http://localhost:${port1}/path1`,
+        href: `http://localhost:${port1}/path1`,
         // Explicitly specify a `Host` header, so it won't be set automatically
         headers: {
           host: `localhost:${port1}`
@@ -308,7 +308,7 @@ test('redirect should clear explicitly specified `Host` (note uppercase) header'
     server2.listen(0, function () {
       port2 = server2.address().port
       get({
-        url: `http://localhost:${port1}/path1`,
+        href: `http://localhost:${port1}/path1`,
         // Explicitly specify a `Host` header, so it won't be set automatically
         headers: {
           Host: `localhost:${port1}`
@@ -347,7 +347,7 @@ test('follow redirects without "url" option', function (t) {
 
   server.listen(0, function () {
     const port = server.address().port
-    get({ hostname: 'localhost', port, path: '/0' }, function (err, res) {
+    get({ hostname: 'localhost', port, pathname: '/0' }, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       concat(res, function (err, data) {
