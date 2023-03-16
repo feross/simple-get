@@ -7,7 +7,6 @@ const http = require('http')
 const https = require('https')
 const once = require('once')
 const querystring = require('querystring')
-const url = require('url')
 
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
@@ -16,10 +15,10 @@ function simpleGet (opts, cb) {
   cb = once(cb)
 
   if (opts.url) {
-    const { hostname, port, protocol, auth, path } = url.parse(opts.url) // eslint-disable-line node/no-deprecated-api
+    const { hostname, port, protocol, username, password, pathname, href } = new URL(opts.url)
+    if (username || password) opts.auth = `${username}:${password}`
     delete opts.url
-    if (!hostname && !port && !protocol && !auth) opts.path = path // Relative redirect
-    else Object.assign(opts, { hostname, port, protocol, auth, path }) // Absolute redirect
+    Object.assign(opts, { hostname, port, protocol, path: pathname, href })
   }
 
   const headers = { 'accept-encoding': 'gzip, deflate' }
@@ -48,13 +47,12 @@ function simpleGet (opts, cb) {
   const protocol = opts.protocol === 'https:' ? https : http // Support http/https urls
   const req = protocol.request(opts, res => {
     if (opts.followRedirects !== false && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-      opts.url = res.headers.location // Follow 3xx redirects
+      opts.url = new URL(res.headers.location, opts.href) // Follow 3xx redirects
       delete opts.headers.host // Discard `host` header on redirect (see #32)
       res.resume() // Discard response
 
-      const redirectHost = url.parse(opts.url).hostname // eslint-disable-line node/no-deprecated-api
       // If redirected host is different than original host, drop headers to prevent cookie leak (#73)
-      if (redirectHost !== null && redirectHost !== originalHost) {
+      if (opts.url.hostname !== originalHost) {
         delete opts.headers.cookie
         delete opts.headers.authorization
       }
