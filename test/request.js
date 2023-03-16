@@ -1,11 +1,11 @@
-const get = require('../')
-const http = require('http')
-const test = require('tape')
+import { createServer } from 'node:http'
+import test from 'tape'
+import get from '../index.js'
 
 test('access `req` object', function (t) {
   t.plan(2)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     res.statusCode = 200
     res.end('response')
   })

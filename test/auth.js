@@ -1,12 +1,12 @@
-const concat = require('simple-concat')
-const get = require('../')
-const http = require('http')
-const test = require('tape')
+import { createServer } from 'node:http'
+import concat from 'simple-concat'
+import test from 'tape'
+import get from '../index.js'
 
 test('basic auth', function (t) {
   t.plan(5)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.headers.authorization, 'Basic Zm9vOmJhcg==')
     res.statusCode = 200
     res.end('response')

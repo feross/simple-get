@@ -1,17 +1,16 @@
 /*! simple-get. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
-module.exports = simpleGet
 
-const concat = require('simple-concat')
-const decompressResponse = require('decompress-response') // excluded from browser build
-const http = require('http')
-const https = require('https')
-const once = require('once')
-const querystring = require('querystring')
-const url = require('url')
+import http from 'node:http'
+import https from 'node:https'
+import { stringify } from 'node:querystring'
+import url from 'node:url'
+import concat from 'simple-concat'
+import decompressResponse from 'decompress-response' // excluded from browser build
+import once from 'once'
 
 const isStream = o => o !== null && typeof o === 'object' && typeof o.pipe === 'function'
 
-function simpleGet (opts, cb) {
+export default function simpleGet (opts, cb) {
   opts = Object.assign({ maxRedirects: 10 }, typeof opts === 'string' ? { url: opts } : opts)
   cb = once(cb)
 
@@ -30,7 +29,7 @@ function simpleGet (opts, cb) {
   if (opts.body) {
     body = opts.json && !isStream(opts.body) ? JSON.stringify(opts.body) : opts.body
   } else if (opts.form) {
-    body = typeof opts.form === 'string' ? opts.form : querystring.stringify(opts.form)
+    body = typeof opts.form === 'string' ? opts.form : stringify(opts.form)
     opts.headers['content-type'] = 'application/x-www-form-urlencoded'
   }
 

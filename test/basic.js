@@ -1,13 +1,15 @@
-const concat = require('simple-concat')
-const get = require('../')
-const http = require('http')
-const selfSignedHttps = require('self-signed-https')
-const test = require('tape')
+import { createServer } from 'node:http'
+import concat from 'simple-concat'
+import selfSignedHttps from 'self-signed-https'
+import test from 'tape'
+import get from '../index.js'
+
+const { head } = get
 
 test('simple get', function (t) {
   t.plan(5)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.url, '/path')
     res.statusCode = 200
     res.end('response')
@@ -56,7 +58,7 @@ test('https', function (t) {
 test('simple get json', function (t) {
   t.plan(6)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.url, '/path')
     t.equal(req.headers.accept, 'application/json')
     res.statusCode = 200
@@ -84,7 +86,7 @@ test('simple get json', function (t) {
 test('HEAD request', function (t) {
   t.plan(3)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.method, 'HEAD')
     // Taken from real-world response from HEAD request to GitHub.com
     res.setHeader('content-type', 'text/html; charset=utf-8')
@@ -100,7 +102,7 @@ test('HEAD request', function (t) {
       method: 'HEAD',
       url: 'http://localhost:' + port
     }
-    get.head(opts, function (err, res) {
+    head(opts, function (err, res) {
       t.error(err)
       t.equal(res.statusCode, 200)
       server.close()
@@ -111,7 +113,7 @@ test('HEAD request', function (t) {
 test('timeout option', function (t) {
   t.plan(2)
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     t.equal(req.url, '/path')
     setTimeout(function () {
       // response should not be sent - should timeout before it's sent
@@ -136,7 +138,7 @@ test('rewrite POST redirects to GET', function (t) {
 
   let redirected = false
 
-  const server = http.createServer(function (req, res) {
+  const server = createServer(function (req, res) {
     if (redirected) {
       t.equal(req.url, '/getthis')
       t.equal(req.method, 'GET')
