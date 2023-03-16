@@ -84,6 +84,13 @@ function simpleGet (opts, cb) {
 }
 
 simpleGet.concat = (opts, cb) => {
+  if (cb) return _concat(opts, cb)
+  return new Promise((resolve, reject) => {
+    _concat(opts, (err, res, data) => err ? reject(err) : resolve({ res, data }))
+  })
+}
+
+function _concat (opts, cb) {
   return simpleGet(opts, (err, res) => {
     if (err) return cb(err)
     concat(res, (err, data) => {
