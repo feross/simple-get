@@ -68,7 +68,7 @@ function simpleGet (opts, cb) {
       else return simpleGet(opts, cb)
     }
 
-    const tryUnzip = typeof decompressResponse === 'function' && opts.method !== 'HEAD'
+    const tryUnzip = !opts.noDecompress && typeof decompressResponse === 'function' && opts.method !== 'HEAD'
     cb(null, tryUnzip ? decompressResponse(res) : res)
   })
   req.on('timeout', () => {
